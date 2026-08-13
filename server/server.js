@@ -7,8 +7,8 @@ import authRoutes from './routes/authRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';  
 import timeOffRoutes from './routes/timeOffRoutes.js';
 
-console.log('🧪 attendanceRoutes type:', typeof attendanceRoutes);
-console.log('🧪 attendanceRoutes value:', attendanceRoutes);
+console.log(' attendanceRoutes type:', typeof attendanceRoutes);
+console.log(' attendanceRoutes value:', attendanceRoutes);
 
 // Load environment variables
 dotenv.config();
