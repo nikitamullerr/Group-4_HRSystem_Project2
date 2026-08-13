@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js'; 
+import employeeRoutes from './routes/employeeRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/employees', employeeRoutes);
 console.log('Auth routes registered at /api/auth');  
 
 console.log('ABOUT TO REGISTER AUTH ROUTES'); 
