@@ -36,39 +36,153 @@ try{document.documentElement.setAttribute("data-theme",localStorage.getItem("mt-
       <h2>Welcome back</h2>
       <p class="sub">Sign in to your HR workspace.</p>
       <div id="loginError" class="login-error hidden"></div>
-      <label class="lbl">Username</label>
-      <input id="username" class="field" placeholder="ModernTech" autocomplete="username">
+      
+      <label class="lbl">Email Address</label>
+      <input id="email" class="field" placeholder="admin@moderntech.com" autocomplete="email" value="admin@moderntech.com">
+      
       <label class="lbl">Password</label>
-      <input id="password" class="field" type="password" placeholder="••••••••" autocomplete="current-password">
+      <input id="password" class="field" type="password" placeholder="••••••••" autocomplete="current-password" value="password123">
+      
       <div class="login-row">
         <label class="remember"><input type="checkbox" id="remember"> Remember me</label>
         <button class="link-btn" id="resetBtn">Reset</button>
       </div>
+      
       <button class="primary-btn" id="loginBtn">Sign in</button>
-      <p class="login-hint">Demo access — ModernTech / moderntech$ </p>
+      <p class="login-hint">Demo: <strong>admin@moderntech.com</strong> / <strong>password123</strong></p>
     </div>
   </div>
 </section>
 
-<script> 
+<script>
 (function(){
-  const AUTH = { username:"ModernTech", password:"moderntech$" };
+  // API base URL - change if your backend is on a different port
+  const API_BASE_URL = 'http://localhost:5000';
+  
   const $ = id => document.getElementById(id);
-  function doLogin(){
-    const u=$("username").value.trim(), p=$("password").value, err=$("loginError");
-    if(!u||!p){ err.textContent="Enter both a username and password to continue."; err.classList.remove("hidden"); return; }
-    if(u===AUTH.username && p===AUTH.password){
-      try{ localStorage.setItem("mt-auth","1"); }catch(e){}
-      location.href="dashboard.html";
-    }else{
-      err.textContent="Incorrect username or password. Try the demo account below.";
-      err.classList.remove("hidden");
+  const errorEl = $("loginError");
+  
+  // Check if user is already logged in
+  function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      window.location.href = 'dashboard.html';
     }
   }
+  
+  // Show error message
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+  
+  // Hide error message
+  function hideError() {
+    errorEl.classList.add('hidden');
+    errorEl.textContent = '';
+  }
+  
+  // Handle login
+  async function doLogin() {
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    
+    // Validate input
+    if (!email || !password) {
+      showError("Please enter both email and password.");
+      return;
+    }
+    
+    // Hide previous errors
+    hideError();
+    
+    // Show loading state
+    const loginBtn = $("loginBtn");
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in...';
+    
+    try {
+      // Send login request to backend
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Login successful - save token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Handle "Remember me" checkbox
+        if ($("remember").checked) {
+          localStorage.setItem('remembered_email', email);
+        } else {
+          localStorage.removeItem('remembered_email');
+        }
+        
+        // Redirect to dashboard
+        window.location.href = 'dashboard.html';
+        
+      } else {
+        // Login failed - show error
+        showError(data.error || 'Invalid credentials. Please try again.');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign in';
+      }
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      showError('Cannot connect to server. Please make sure the backend is running (node server.js)');
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Sign in';
+    }
+  }
+  
+  // Check auth status on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    
+    // Auto-fill remembered email
+    const rememberedEmail = localStorage.getItem('remembered_email');
+    if (rememberedEmail) {
+      $("email").value = rememberedEmail;
+      $("remember").checked = true;
+    }
+  });
+  
+  // Event listeners
   $("loginBtn").addEventListener("click", doLogin);
-  $("password").addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
-  $("username").addEventListener("keydown", e=>{ if(e.key==="Enter") $("password").focus(); });
-  $("resetBtn").addEventListener("click", ()=>{ $("username").value=""; $("password").value=""; $("remember").checked=false; $("loginError").classList.add("hidden"); });
+  
+  // Enter key on password field triggers login
+  $("password").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      doLogin();
+    }
+  });
+  
+  // Enter key on email field moves to password
+  $("email").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("password").focus();
+    }
+  });
+  
+  // Reset button clears fields
+  $("resetBtn").addEventListener("click", function() {
+    $("email").value = "";
+    $("password").value = "";
+    $("remember").checked = false;
+    hideError();
+    $("email").focus();
+  });
+  
 })();
 </script>
 </body>

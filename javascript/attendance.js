@@ -1,11 +1,10 @@
 /* ATTENDANCE MANAGEMENT SCRIPT
    This file powers the "Attendance Management" page.
-   It loads employee attendance data from JSON,
+   It loads employee attendance data from the backend API,
    renders a dashboard with KPIs, a bar chart,
    and a detailed attendance table. */
 
 /* Navigation configuration */
-// Defines all main menu items (used in the top bar and mobile nav).
 const NAV = [
   { id: "dashboard", label: "Dashboard" },
   { id: "employees", label: "Employees" },
@@ -15,23 +14,18 @@ const NAV = [
   { id: "performance_review", label: "Performance Reviews" },
 ];
 
-// Builds the URL for a given page ID (simply appends ".html").
 function pageUrl(id) {
   return id + ".html";
 }
 
 /* Top bar HTML generation */
-// Generates the complete top bar markup based on the currently active page.
 function topbarHTML(active) {
-  // SVG icon for the company logo.
   const logo = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V9l6-4 6 4v12M10 21v-5h4v5"/></svg>';
   
-  // Build navigation links, marking the active one with the "active" class.
   const links = NAV.map(function(n) {
     return '<a class="topnav-item ' + (n.id === active ? 'active' : '') + '" href="' + pageUrl(n.id) + '">' + n.label + '</a>';
   }).join("");
 
-  // Return the complete HTML for the topbar.
   return `
     <a class="tb-brand" href="${pageUrl('dashboard')}"><span class="tb-logo">${logo}</span><span class="tb-name">ModernTech HR</span></a>
     <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation">
@@ -40,12 +34,9 @@ function topbarHTML(active) {
     <nav class="topnav">${links}</nav>
     <div class="top-spacer"></div>
     <div class="top-icons">
-      <!-- Theme toggle button -->
       <button class="icon-btn" id="themeBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-      <!-- User profile button -->
       <button class="acct" id="profileBtn"><span class="av">HA</span><span class="who"><b>HR Admin</b><span>HR Manager</span></span></button>
     </div>
-    <!-- Dropdown profile menu -->
     <div class="menu" id="profileMenu">
       <button id="goProfile">My profile</button>
       <div class="sep"></div>
@@ -54,26 +45,22 @@ function topbarHTML(active) {
   `;
 }
 
-// Determine the current page from the <body>'s data-page attribute (default: "attendance").
 var active = document.body.dataset.page || "attendance";
 var tb = document.getElementById("topbar");
 if (tb) tb.innerHTML = topbarHTML(active);
 
 /* Mobile navigation */
-// Creates a sliding mobile navigation panel that appears when the hamburger is clicked.
 function createMobileNav() {
   var nav = document.createElement('div');
   nav.className = 'mobile-nav';
   nav.id = 'mobileNav';
   
-  // Populate with the same navigation links.
   nav.innerHTML = NAV.map(function(n) {
     return '<a class="mobile-nav-item ' + (n.id === active ? 'active' : '') + '" href="' + pageUrl(n.id) + '">' + n.label + '</a>';
   }).join('');
   
   document.body.appendChild(nav);
   
-  // Close the nav when any link is clicked.
   nav.querySelectorAll('a').forEach(function(link) {
     link.addEventListener('click', function() {
       nav.classList.remove('open');
@@ -85,7 +72,6 @@ function createMobileNav() {
 
 var mobileNav = createMobileNav();
 
-// Toggle mobile nav when the hamburger button is clicked.
 var hamburgerBtn = document.getElementById('hamburgerBtn');
 if (hamburgerBtn) {
   hamburgerBtn.addEventListener('click', function(e) {
@@ -94,14 +80,12 @@ if (hamburgerBtn) {
   });
 }
 
-// Close the mobile nav when clicking outside of it.
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.hamburger-btn') && !e.target.closest('.mobile-nav')) {
     mobileNav.classList.remove('open');
   }
 });
 
-// Close mobile nav on scroll (with a small delay to avoid performance issues).
 var scrollTimeout;
 window.addEventListener('scroll', function() {
   clearTimeout(scrollTimeout);
@@ -110,29 +94,20 @@ window.addEventListener('scroll', function() {
   }, 100);
 });
 
-/*  Theme (dark/light) management  */
-// Persists the user's theme preference in localStorage.
+/* Theme management */
 var THEME_KEY = "mt-theme";
 
 function currentTheme() {
-  try {
-    return localStorage.getItem(THEME_KEY) || "light";
-  } catch(e) {
-    return "light";
-  }
+  try { return localStorage.getItem(THEME_KEY) || "light"; }
+  catch(e) { return "light"; }
 }
 
-// Applies the chosen theme by setting a data attribute on the <html> element,
-// and updates the theme button icon.
 function applyTheme(t) {
   document.documentElement.setAttribute("data-theme", t);
-  try {
-    localStorage.setItem(THEME_KEY, t);
-  } catch(e) {}
+  try { localStorage.setItem(THEME_KEY, t); } catch(e) {}
   updateThemeIcon(t);
 }
 
-// Swaps the theme button icon between sun and moon.
 function updateThemeIcon(t) {
   var btn = document.getElementById("themeBtn");
   if (!btn) return;
@@ -143,10 +118,8 @@ function updateThemeIcon(t) {
   btn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
 }
 
-// Restore saved theme when the page loads.
 applyTheme(currentTheme());
 
-// Toggle theme when the theme button is clicked.
 var themeBtn = document.getElementById("themeBtn");
 if (themeBtn) {
   themeBtn.addEventListener("click", function() {
@@ -154,8 +127,7 @@ if (themeBtn) {
   });
 }
 
-/*  Profile menu (dropdown) */
-// Clicking the profile avatar toggles the dropdown menu.
+/* Profile menu */
 var profileBtn = document.getElementById("profileBtn");
 if (profileBtn) {
   profileBtn.addEventListener("click", function(e) {
@@ -165,23 +137,20 @@ if (profileBtn) {
   });
 }
 
-// Placeholder action for "My profile".
 var goProfileBtn = document.getElementById("goProfile");
 if (goProfileBtn) {
-  goProfileBtn.addEventListener("click", function() {
-    alert("Profile");
-  });
+  goProfileBtn.addEventListener("click", function() { alert("Profile"); });
 }
 
-// Logout: redirect to the login page.
 var logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", function() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     location.href = "index.html";
   });
 }
 
-// Close the profile menu when clicking anywhere else on the page.
 document.addEventListener("click", function() {
   var menu = document.getElementById("profileMenu");
   if (menu) menu.classList.remove("show");
@@ -189,44 +158,34 @@ document.addEventListener("click", function() {
 
 /* DATA LOADING AND STATE BUILDING */
 
-// These global variables will hold the raw loaded data.
 var ATTENDANCE_LEAVE = [];
 var PAYROLL = {};
 var EMP_META = {};
 
-// Static department definitions – each has a name and a colour for UI consistency.
 var DEPARTMENTS = [
-  { name: "Engineering", color: "#1d4ed8" },
-  { name: "Sales", color: "#0ea5e9" },
-  { name: "Marketing", color: "#6366f1" },
-  { name: "Finance", color: "#0891b2" },
-  { name: "People", color: "#2563eb" },
-  { name: "Operations", color: "#3b82f6" },
-  { name: "Product", color: "#4f46e5" },
+  { name: "Development", color: "#1d4ed8" },
+  { name: "HR", color: "#0ea5e9" },
+  { name: "QA", color: "#6366f1" },
+  { name: "Sales", color: "#0891b2" },
+  { name: "Marketing", color: "#2563eb" },
+  { name: "Design", color: "#3b82f6" },
+  { name: "IT", color: "#4f46e5" },
+  { name: "Finance", color: "#7c3aed" },
   { name: "Support", color: "#38bdf8" },
-  { name: "Design", color: "#7c3aed" },
 ];
 
-// Lookup object for quick department colour access.
 var DEPT_COLOR = {};
-DEPARTMENTS.forEach(function(d) {
-  DEPT_COLOR[d.name] = d.color;
-});
+DEPARTMENTS.forEach(function(d) { DEPT_COLOR[d.name] = d.color; });
 
-// A pool of avatar colours – we assign one based on employee ID.
 var AVATAR_COLORS = ["#1d4ed8","#2563eb","#0ea5e9","#6366f1","#0891b2","#3b82f6","#4f46e5","#7c3aed","#0284c7","#4338ca"];
 
-// Short month names for display.
 var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-// Parse a "YYYY-MM-DD" string into an object with {y, m, d} (month is 0-indexed).
 function parseDate(s) {
   var parts = s.split("-").map(Number);
   return { y: parts[0], m: parts[1] - 1, d: parts[2] };
 }
 
-/* Building the employee list and computed statistics */
-// These variables will hold the processed data and UI state.
 var employees = [];
 var deptCounts = {};
 var statusCounts = {};
@@ -235,13 +194,10 @@ var dailyPresent = [];
 var attendanceRate = 0;
 var state = {};
 
-// Transforms the raw attendance, payroll, and employee info into a clean employee array
-// and computes KPIs like department headcount, daily present count, etc.
 function buildState() {
-  // 1. Build the employee list from ATTENDANCE_LEAVE.
   employees = ATTENDANCE_LEAVE.map(function(rec) {
     var id = rec.employeeId;
-    var meta = EMP_META[id] || { dept: "Operations", role: "Team Member" };
+    var meta = EMP_META[id] || { dept: "Development", role: "Team Member" };
     var pay = PAYROLL[id] || { hoursWorked: 160, leaveDeductions: 0, finalSalary: 0 };
     var nameParts = rec.name.split(" ");
     var first = nameParts[0];
@@ -260,27 +216,15 @@ function buildState() {
     };
   });
 
-  // 2. Department headcounts.
   deptCounts = {};
-  DEPARTMENTS.forEach(function(d) {
-    deptCounts[d.name] = 0;
-  });
+  DEPARTMENTS.forEach(function(d) { deptCounts[d.name] = 0; });
   employees.forEach(function(e) {
     if (deptCounts[e.dept] != null) deptCounts[e.dept]++;
   });
 
-  // 3. Status counts (simplified – we only use "Active" here for demo).
-  // The original code had statusCounts but never set employee.status, so we'll
-  // keep it for compatibility but it may not reflect actual data.
   statusCounts = { "Active": 0, "Remote": 0, "On Leave": 0 };
-  employees.forEach(function(e) {
-    // In this version, we don't have a 'status' field on employees,
-    // so we just count everyone as Active.
-    statusCounts["Active"]++;
-  });
+  employees.forEach(function(e) { statusCounts["Active"]++; });
 
-  // 4. Daily present headcount – we need a common list of dates.
-  // Assume the first employee has a full set of dates.
   var attDates = ATTENDANCE_LEAVE[0].attendance.map(function(a) { return a.date; });
   dayLabels = attDates.map(function(d) {
     var p = parseDate(d);
@@ -294,14 +238,12 @@ function buildState() {
     }, 0);
   });
 
-  // 5. Overall attendance rate (percentage).
   var totalPresent = employees.reduce(function(n, e) {
     return n + e.attendanceLog.filter(function(a) { return a.status === "Present"; }).length;
   }, 0);
   var totalPossible = employees.length * attDates.length;
   attendanceRate = totalPossible > 0 ? Math.round((totalPresent / totalPossible) * 100) : 0;
 
-  // 6. Store everything in the global state object.
   state = {
     employees: employees,
     departments: DEPARTMENTS,
@@ -313,36 +255,155 @@ function buildState() {
   };
 }
 
-/* Loading data from JSON files */
-// Fetches attendance.json, employee_info.json, and payroll_data.json.
-// On success, builds the state; on failure, shows an error message.
+// FALLBACK FUNCTION - Used when /api/employees is not available
+
+function getFallbackEmployeeData(attendanceData) {
+  console.log('Using fallback employee data (hardcoded departments)');
+  
+  const departmentMap = {
+    1: 'Development',
+    2: 'HR',
+    3: 'QA',
+    4: 'Sales',
+    5: 'Marketing',
+    6: 'Design',
+    7: 'IT',
+    8: 'Finance',
+    9: 'Support'
+  };
+
+  const meta = {};
+  attendanceData.forEach(record => {
+    const empId = record.employee_id;
+    if (!meta[empId]) {
+      meta[empId] = {
+        dept: departmentMap[empId] || 'Development',
+        role: 'Team Member'
+      };
+    }
+  });
+  
+  return meta;
+}
+
+// LOAD DATA FROM BACKEND API
+
 async function loadData() {
   try {
-    var [attRes, empRes, payRes] = await Promise.all([
-      fetch("attendance.json"),
-      fetch("employee_info.json"),
-      fetch("payroll_data.json")
-    ]);
-
-    if (!attRes.ok || !empRes.ok || !payRes.ok) {
-      throw new Error("Failed to load data files");
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('No authentication token found. Please login first.');
     }
 
-    var attendanceData = await attRes.json();
-    var employeeInfoData = await empRes.json();
-    var payrollData = await payRes.json();
+    // 1. Fetch attendance data (YOUR API)
+    const attRes = await fetch('http://localhost:5000/api/attendance', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-    // Parse the data – handle different possible JSON structures.
-    ATTENDANCE_LEAVE = attendanceData.attendanceAndLeave || attendanceData.attendance || [];
-    PAYROLL = payrollData.payroll || payrollData || {};
+    if (!attRes.ok) {
+      if (attRes.status === 401) {
+        throw new Error('Session expired. Please login again.');
+      }
+      throw new Error('Failed to fetch attendance data from server');
+    }
 
-    // Build EMP_META from employee_info.json.
+    const attendanceData = await attRes.json();
+    console.log('Attendance data loaded:', attendanceData.length, 'records');
+
+    // 2. Try to fetch employee data (Xabiso's API) with fallback
+    let EMP_META = {};
+
+    try {
+      console.log('Attempting to fetch employees from /api/employees...');
+      const empRes = await fetch('http://localhost:5000/api/employees', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (empRes.ok) {
+        const employeesData = await empRes.json();
+        console.log('Employee data loaded from API:', employeesData.length, 'records');
+        
+        employeesData.forEach(emp => {
+          EMP_META[emp.id] = {
+            dept: emp.department_name || 'Development',
+            role: emp.position || 'Team Member'
+          };
+        });
+      } else {
+        console.warn(' /api/employees returned', empRes.status, '- using fallback data');
+        EMP_META = getFallbackEmployeeData(attendanceData);
+      }
+    } catch (empError) {
+      console.warn('Failed to fetch /api/employees, using fallback:', empError.message);
+      EMP_META = getFallbackEmployeeData(attendanceData);
+    }
+
+    // 3. Fetch pending leave requests (YOUR API)
+    const leaveRes = await fetch('http://localhost:5000/api/timeoff/pending', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    let leaveData = [];
+    if (leaveRes.ok) {
+      leaveData = await leaveRes.json();
+      console.log('Pending leave data loaded:', leaveData.length, 'requests');
+    }
+
+    // 4. Transform attendance data
+    const employeeMap = {};
+    
+    attendanceData.forEach(record => {
+      const empId = record.employee_id;
+      if (!employeeMap[empId]) {
+        const meta = EMP_META[empId] || { dept: 'Development', role: 'Team Member' };
+        employeeMap[empId] = {
+          employeeId: empId,
+          name: `${record.first_name} ${record.last_name}`,
+          dept: meta.dept,
+          role: meta.role,
+          attendance: [],
+          leaveRequests: []
+        };
+      }
+      employeeMap[empId].attendance.push({
+        date: record.date.split('T')[0],
+        status: record.status
+      });
+    });
+
+    // 5. Add leave requests
+    leaveData.forEach(leave => {
+      const empId = leave.employee_id;
+      if (employeeMap[empId]) {
+        employeeMap[empId].leaveRequests.push({
+          date: leave.start_date.split('T')[0],
+          reason: leave.type,
+          status: leave.status
+        });
+      }
+    });
+
+    // 6. Store in global variables
+    ATTENDANCE_LEAVE = Object.values(employeeMap);
+    console.log('Total employees processed:', ATTENDANCE_LEAVE.length);
+
+    // 7. Build EMP_META (ensure it has all employees)
     EMP_META = {};
-    var employeesList = employeeInfoData.employeeInformation || employeeInfoData.employees || [];
-    employeesList.forEach(function(emp) {
+    ATTENDANCE_LEAVE.forEach(emp => {
       EMP_META[emp.employeeId] = {
-        dept: emp.department || "Unknown",
-        role: emp.position || "Team Member"
+        dept: emp.dept || 'Development',
+        role: emp.role || 'Team Member'
+      };
+    });
+
+    // 8. Build PAYROLL data
+    PAYROLL = {};
+    Object.keys(employeeMap).forEach(id => {
+      PAYROLL[id] = {
+        hoursWorked: 160,
+        leaveDeductions: 0,
+        finalSalary: 0
       };
     });
 
@@ -350,14 +411,13 @@ async function loadData() {
     return true;
 
   } catch (err) {
-    console.error("Error loading data:", err);
-    var main = document.getElementById("main");
+    console.error('Error loading data:', err);
+    const main = document.getElementById("main");
     if (main) {
       main.innerHTML =
         '<div class="no-results" style="padding: 40px; text-align: center;">' +
           '<h2>Could not load data</h2>' +
-          '<p>Make sure the data files are in the <code>data/</code> folder.</p>' +
-          '<p style="color: var(--muted); font-size: 14px; margin-top: 8px;">Error: ' + err.message + '</p>' +
+          '<p style="color: var(--muted); font-size: 14px; margin-top: 8px;">' + err.message + '</p>' +
           '<button onclick="location.reload()" style="margin-top: 20px; padding: 10px 24px; border: none; border-radius: 8px; background: #3b82f6; color: white; cursor: pointer; font-weight: 600;">Retry</button>' +
         '</div>';
     }
@@ -367,36 +427,28 @@ async function loadData() {
 
 /* UI HELPERS */
 
-// Shorthand DOM selectors.
 function $(s) { return document.querySelector(s); }
 function $$(s) { return Array.from(document.querySelectorAll(s)); }
 
-// Returns the initials (first two letters) from a full name.
 function initials(name) {
   return name.split(" ").map(function(w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
 }
 
-// Renders an avatar circle with the employee's initials and a background colour.
 function avatar(e, cls) {
   cls = cls || "";
   return '<span class="avatar ' + cls + '" style="background:' + (e.avatar || e.deptColor || '#1d4ed8') + '">' + initials(e.name) + '</span>';
 }
 
-// Shows a transient toast notification.
 function toast(msg) {
   var t = document.getElementById("toast");
   if (!t) return;
   t.textContent = msg;
   t.classList.add("show");
   clearTimeout(t._t);
-  t._t = setTimeout(function() {
-    t.classList.remove("show");
-  }, 2200);
+  t._t = setTimeout(function() { t.classList.remove("show"); }, 2200);
 }
 
 /* SVG bar chart generator */
-// Creates an SVG bar chart inside the given container.
-// values: array of numbers; labels: array of corresponding labels; opts: optional settings.
 function barSVG(values, labels, opts) {
   opts = opts || {};
   var w = opts.w || 560;
@@ -409,7 +461,6 @@ function barSVG(values, labels, opts) {
   var gap = plotW / n;
   var bw = Math.min(30, gap * 0.5);
 
-  // Build grid lines and y‑axis labels.
   var grid = "";
   var yl = "";
   for (var i = 0; i <= 4; i++) {
@@ -419,7 +470,6 @@ function barSVG(values, labels, opts) {
     yl += '<text x="' + (padL - 6) + '" y="' + (y + 3) + '" text-anchor="end" class="axis-label">' + val + '</text>';
   }
 
-  // Build each bar (rect + label).
   var bars = values.map(function(v, i) {
     var bh = (v / max) * plotH;
     var x = padL + gap * i + (gap - bw) / 2;
@@ -428,18 +478,13 @@ function barSVG(values, labels, opts) {
     return '<g class="bar"><rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="5" fill="' + col + '"><title>' + labels[i] + ': ' + v + '</title></rect><text x="' + (x + bw/2) + '" y="' + (h - 8) + '" text-anchor="middle" class="axis-label">' + labels[i] + '</text></g>';
   }).join("");
 
-  // Assemble the full SVG.
   return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" class="barchart" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs>' + grid + yl + bars + '</svg>';
 }
 
 /* RENDER THE ATTENDANCE PAGE */
-
-// This is the main rendering function – it builds the entire attendance dashboard
-// using the data stored in the global `state` object.
 function renderAttendance() {
   var emps = state.employees;
 
-  // If there are no employees, show a friendly error message.
   if (!emps || emps.length === 0) {
     document.getElementById("main").innerHTML =
       '<div class="no-results" style="padding: 40px; text-align: center;">' +
@@ -449,11 +494,9 @@ function renderAttendance() {
     return;
   }
 
-  // Extract the list of dates from the first employee's attendance log.
   var dates = emps[0].attendanceLog.map(function(a) { return a.date; });
-  var dayHeads = state.months; // pre‑formatted day labels (e.g. "1 Jan", "2 Jan", ...)
+  var dayHeads = state.months;
 
-  // Compute some KPIs.
   var totalCells = emps.length * dates.length;
   var totalPresent = emps.reduce(function(n, e) {
     return n + e.attendanceLog.filter(function(a) { return a.status === "Present"; }).length;
@@ -462,14 +505,12 @@ function renderAttendance() {
   var avgPerDay = Math.round(state.attendance.reduce(function(a, b) { return a + b; }, 0) / dates.length);
   var onLeave = state.statusCounts["On Leave"] || 0;
 
-  // Helper to generate a dot (P or A) for each attendance record.
   function dot(st) {
     return st === "Present"
       ? '<span class="att-dot present" title="Present">P</span>'
       : '<span class="att-dot absent" title="Absent">A</span>';
   }
 
-  // Build the table rows for each employee.
   var bodyRows = emps.map(function(e) {
     var present = e.attendanceLog.filter(function(a) { return a.status === "Present"; }).length;
     var rate = Math.round(present / dates.length * 100);
@@ -486,30 +527,22 @@ function renderAttendance() {
     '</tr>';
   }).join("");
 
-  // Inject the full page HTML into the #main container.
   document.getElementById("main").innerHTML =
-    // Page header
     '<div class="page-head">' +
       '<div class="eyebrow">Operations</div>' +
       '<div class="page-title">Attendance Management</div>' +
       '<div class="page-sub">Daily attendance across the team · ' + dayHeads[0] + ' – ' + dayHeads[dayHeads.length - 1] + ' 2025</div>' +
     '</div>' +
-
-    // KPI cards
     '<div class="kpis">' +
       '<div class="kpi"><div class="klab">Attendance Rate</div><div class="kval">' + state.attendanceRate + '%</div><span class="ktrend up">team average</span></div>' +
       '<div class="kpi"><div class="klab">Avg Present / Day</div><div class="kval">' + avgPerDay + '<span style="font-size:15px;color:var(--muted)"> / ' + emps.length + '</span></div></div>' +
       '<div class="kpi"><div class="klab">Total Absences</div><div class="kval">' + totalAbsent + '</div><span class="ktrend">over ' + dates.length + ' days</span></div>' +
       '<div class="kpi"><div class="klab">On Leave</div><div class="kval">' + onLeave + '</div></div>' +
     '</div>' +
-
-    // Bar chart panel
     '<div class="panel" style="margin-bottom:20px">' +
       '<div class="panel-title"><h3>Daily Present Headcount</h3><span class="hint">People on-site each day</span></div>' +
       barSVG(state.attendance, dayHeads, {max: emps.length}) +
     '</div>' +
-
-    // Attendance table (scrollable wrapper)
     '<div class="card att-wrap">' +
       '<div class="att-scroll">' +
         '<table class="att-table">' +
@@ -526,9 +559,7 @@ function renderAttendance() {
     '</div>';
 }
 
-/* BOOT – Start the application */
-
-// When the DOM is ready, load the data and render the page.
+/* BOOT */
 document.addEventListener("DOMContentLoaded", async function() {
   var success = await loadData();
   if (success) {
