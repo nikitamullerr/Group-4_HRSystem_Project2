@@ -96,7 +96,12 @@ document.getElementById("profileBtn")?.addEventListener("click", e => {
   document.getElementById("profileMenu").classList.toggle("show");
 });
 document.getElementById("goProfile")?.addEventListener("click", () => { alert("Profile"); });
-document.getElementById("logoutBtn")?.addEventListener("click", () => { location.href = "../index.html"; });
+document.getElementById("logoutBtn")?.addEventListener("click", () => { 
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("mt-auth");
+  location.href = "../index.html"; 
+});
 document.addEventListener("click", () => { document.getElementById("profileMenu")?.classList.remove("show"); });
 
 /* ============================================================
@@ -137,11 +142,17 @@ const $$ = s => Array.from(document.querySelectorAll(s));
 
 function toast(msg) {
   const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 2200);
+  if (!t) {
+    const toastEl = document.createElement('div');
+    toastEl.id = 'toast';
+    toastEl.className = 'toast';
+    document.body.appendChild(toastEl);
+  }
+  const toastEl = document.getElementById('toast');
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2200);
 }
 
 function openModal(title, bodyHTML, footHTML) {
@@ -217,49 +228,97 @@ function wirePager(selector, callback) {
 }
 
 /* ============================================================
-   ----------  API CALLS  ----------
+   ----------  GET TOKEN HELPER  ----------
+   ============================================================ */
+
+function getToken() {
+  return localStorage.getItem("token") || localStorage.getItem("mt-auth") || null;
+}
+
+/* ============================================================
+   ----------  API CALLS (with authentication)  ----------
    All data now comes from the backend via fetch.
    ============================================================ */
 
-const API_BASE = 'http://localhost:5000/api'; // adjust to your server
+const API_BASE = 'http://localhost:5000/api';
 
 // Fetch employees and update state
 async function fetchEmployees() {
+  console.log('🔍 Fetching employees...');
+  const token = getToken();
+  if (!token) {
+    console.error('❌ No token found, redirecting to login');
+    toast('Please login again');
+    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+    return;
+  }
+
   try {
-    const res = await fetch(`${API_BASE}/employees`);
-    if (!res.ok) throw new Error('Failed to fetch employees');
+    const res = await fetch(`${API_BASE}/employees`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!res.ok) {
+      if (res.status === 401) {
+        toast('Session expired. Please login again.');
+        setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+        return;
+      }
+      throw new Error(`Failed to fetch employees: ${res.status}`);
+    }
     const data = await res.json();
-    // data comes as: { id, name, first, last, role, dept, email, salary, status, ... }
-    // We need to add computed fields like deptColor, avatar, etc.
+    console.log('✅ Employees loaded:', data.length);
+    
     state.employees = data.map(emp => ({
       ...emp,
-      deptColor: DEPT_COLOR[emp.dept] || '#1d4ed8',
+      id: emp.id,
+      name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || `Employee #${emp.id}`,
+      role: emp.position || 'Team Member',
+      dept: emp.department_name || 'N/A',
+      deptColor: DEPT_COLOR[emp.department_name] || '#1d4ed8',
       avatar: AVATAR_COLORS[emp.id % AVATAR_COLORS.length],
-      overtime: 0,       // will be filled by payroll run
-      deductions: 0,     // will be filled by payroll run
-      hoursWorked: 0,    // will be filled by payroll run
-      leaveDeductions: 0 // will be filled by payroll run
+      salary: emp.salary || 50000,
+      status: 'Active',
+      overtime: 0,
+      deductions: 0,
+      hoursWorked: 160,
+      leaveDeductions: 0
     }));
-    // Compute total monthly payroll (sum of salaries)
-    state.totalMonthlyPayroll = state.employees.reduce((sum, e) => sum + e.salary, 0);
+    
+    // Compute total monthly payroll
+    state.totalMonthlyPayroll = state.employees.reduce((sum, e) => sum + (e.salary || 0), 0);
     renderPayroll();
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error fetching employees:', err);
     toast('Error loading employees');
   }
 }
 
 // Fetch payslip for a specific employee and period
 async function fetchPayslip(employeeId, periodId) {
+  console.log('🔍 Fetching payslip for employee:', employeeId);
+  const token = getToken();
+  if (!token) {
+    console.error('❌ No token found');
+    return null;
+  }
+
   try {
-    const res = await fetch(`${API_BASE}/payroll/employees/${employeeId}/payslip?periodId=${periodId}`);
+    const res = await fetch(`${API_BASE}/payroll/payslip/${employeeId}?period=${periodId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     if (!res.ok) {
-      if (res.status === 404) return null; // not generated yet
-      throw new Error('Failed to fetch payslip');
+      if (res.status === 404) return null;
+      throw new Error(`Failed to fetch payslip: ${res.status}`);
     }
-    return await res.json();
+    const data = await res.json();
+    console.log('✅ Payslip loaded:', data);
+    return data;
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error fetching payslip:', err);
     toast('Error loading payslip');
     return null;
   }
@@ -267,20 +326,32 @@ async function fetchPayslip(employeeId, periodId) {
 
 // Run payroll for a period
 async function runPayroll(periodId) {
+  console.log('🔍 Running payroll...');
+  const token = getToken();
+  if (!token) {
+    toast('Please login again');
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/payroll/run`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({ periodId })
     });
-    if (!res.ok) throw new Error('Payroll run failed');
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Payroll run failed');
+    }
     const result = await res.json();
-    toast('Payroll run completed');
-    // Refresh employees (or just payroll items) – we'll refresh all
+    toast(`Payroll run completed: ${result.count || 0} employees processed`);
     await fetchEmployees();
   } catch (err) {
-    console.error(err);
-    toast('Error running payroll');
+    console.error('❌ Error running payroll:', err);
+    toast('Error running payroll: ' + err.message);
   }
 }
 
@@ -289,6 +360,7 @@ async function runPayroll(periodId) {
    ============================================================ */
 
 let currentTab = "payroll";
+
 function renderPayroll() {
   const main = document.getElementById('main');
   if (!main) return;
@@ -376,8 +448,7 @@ function renderPayrollTab() {
   const runBtn = document.getElementById('runPay');
   if (runBtn) {
     runBtn.onclick = async () => {
-      // In a real app, you'd let user pick a period. For demo, use period 1 (or create one)
-      const periodId = 1; // default
+      const periodId = 1;
       await runPayroll(periodId);
     };
   }
@@ -405,8 +476,6 @@ function drawPayrollTable() {
     return;
   }
 
-  // Net pay: use salary + overtime - deductions (from payroll items)
-  // If we haven't run payroll, these will be 0, so we show salary as net.
   const netPay = e => e.salary + (e.overtime || 0) - (e.deductions || 0);
 
   rowsContainer.innerHTML = slice.map(e => `
@@ -441,12 +510,14 @@ function drawPayrollTable() {
 /* ============================================================
    PAYSLIP MODAL - now fetches real payslip from API
    ============================================================ */
+
 async function viewPayslip(id) {
   const e = state.employees.find(x => x.id === id);
-  if (!e) return;
+  if (!e) {
+    toast('Employee not found');
+    return;
+  }
 
-  // For modal, we fetch the latest payslip for period 1 (or user-selected)
-  // In a real app, you'd ask which period. For simplicity, we use periodId=1.
   const periodId = 1;
   const payslipData = await fetchPayslip(id, periodId);
   if (!payslipData) {
@@ -454,22 +525,29 @@ async function viewPayslip(id) {
     return;
   }
 
-  // Build modal with real data
-  const { earnings, deductions, net } = payslipData;
-  const basic = earnings.basic;
-  const ot = earnings.overtime;
-  const ded = deductions.total;
+  const figures = payslipData.figures || {};
+  const basic = figures.basic || 0;
+  const ot = figures.overtime || 0;
+  const gross = figures.gross || 0;
+  const tax = figures.tax || 0;
+  const pension = figures.pension || 0;
+  const other = figures.other || 0;
+  const totalDeductions = figures.totalDeductions || 0;
+  const net = figures.net || 0;
 
   openModal(
     "Payslip · " + e.name,
     `
       <p style="color:var(--muted);margin-bottom:12px">${e.role} · ${e.dept}</p>
-      <div class="line"><span>Hours worked</span><b>${e.hoursWorked || 'N/A'}</b></div>
-      <div class="line"><span>Leave deductions</span><b>${e.leaveDeductions || 0}</b></div>
+      <div class="line"><span>Period</span><b>${payslipData.period?.name || 'N/A'}</b></div>
       <div class="pay-table" style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px">
         <div class="prow"><span>Basic Salary</span><span class="r"></span><span class="r">${money(basic)}</span></div>
         <div class="prow"><span>Overtime</span><span class="r"></span><span class="r">${money(ot)}</span></div>
-        <div class="prow"><span>Deductions</span><span class="r"></span><span class="r">-${money(ded)}</span></div>
+        <div class="prow"><span>Gross Pay</span><span class="r"></span><span class="r">${money(gross)}</span></div>
+        <div class="prow"><span>Tax (PAYE)</span><span class="r"></span><span class="r">-${money(tax)}</span></div>
+        <div class="prow"><span>Pension</span><span class="r"></span><span class="r">-${money(pension)}</span></div>
+        <div class="prow"><span>Other Deductions</span><span class="r"></span><span class="r">-${money(other)}</span></div>
+        <div class="prow"><span>Total Deductions</span><span class="r"></span><span class="r">-${money(totalDeductions)}</span></div>
         <div class="prow net"><span><b>Net Pay</b></span><span class="r"></span><span class="r">${money(net)}</span></div>
       </div>
     `,
@@ -489,7 +567,6 @@ async function viewPayslip(id) {
   };
   document.getElementById('mslip').onclick = () => {
     closeModal();
-    window.print();
     toast("Downloaded " + e.name + "'s payslip");
   };
 }
@@ -497,6 +574,7 @@ async function viewPayslip(id) {
 /* ============================================================
    TAB 2: PAYSLIPS - now uses API for payslip document
    ============================================================ */
+
 const PS_PERIODS = ["January", "February", "March", "April", "May", "June"]
   .map((name, m) => ({
     m,
@@ -576,29 +654,32 @@ async function drawPayslipDoc() {
   psEmpId = e.id;
   const p = PS_PERIODS[psPeriod] || PS_PERIODS[0];
 
-  // Fetch payslip data from API
-  const periodId = psPeriod + 1; // assuming period IDs correspond to month index + 1
+  const periodId = psPeriod + 1;
   const payslipData = await fetchPayslip(e.id, periodId);
+
+  const docContainer = document.getElementById('slipDoc');
+  if (!docContainer) return;
+
   if (!payslipData) {
-    const docContainer = document.getElementById('slipDoc');
-    if (docContainer) {
-      docContainer.innerHTML = `<div class="panel empty">No payslip for ${e.name} for ${p.name} ${p.year}. Run payroll first.</div>`;
-    }
+    docContainer.innerHTML = `<div class="panel empty">No payslip for ${e.name} for ${p.name} ${p.year}. Run payroll first.</div>`;
     return;
   }
 
-  const { earnings, deductions, net } = payslipData;
-  // Compute YTD - could be provided by API, but for demo we calculate from earnings/deductions
-  // In a real system, you'd have an endpoint for YTD. We'll just show current period.
+  const figures = payslipData.figures || {};
+  const basic = figures.basic || 0;
+  const overtime = figures.overtime || 0;
+  const gross = figures.gross || 0;
+  const tax = figures.tax || 0;
+  const pension = figures.pension || 0;
+  const other = figures.other || 0;
+  const totalDeductions = figures.totalDeductions || 0;
+  const net = figures.net || 0;
 
   const periodOpts = PS_PERIODS.map(pr => `
     <option value="${pr.m}" ${pr.m === psPeriod ? 'selected' : ''}>${pr.name} ${pr.year}</option>
   `).join('');
 
   const logo = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V9l6-4 6 4v12M10 21v-5h4v5"/></svg>';
-
-  const docContainer = document.getElementById('slipDoc');
-  if (!docContainer) return;
 
   docContainer.innerHTML = `
     <div class="panel slip-doc" id="slipPaper">
@@ -630,7 +711,7 @@ async function drawPayslipDoc() {
           </div>
           <div>
             <span>Hours worked</span>
-            <b>${e.hoursWorked || 'N/A'}</b>
+            <b>${e.hoursWorked || 160}</b>
           </div>
           <div>
             <span>Leave deductions</span>
@@ -647,16 +728,16 @@ async function drawPayslipDoc() {
       <div class="slip-cols">
         <div class="slip-block">
           <div class="slip-h">Earnings</div>
-          <div class="slip-row"><span>Basic salary</span><b>${money(earnings.basic)}</b></div>
-          <div class="slip-row"><span>Overtime</span><b>${money(earnings.overtime)}</b></div>
-          <div class="slip-row total"><span>Gross pay</span><b>${money(earnings.gross)}</b></div>
+          <div class="slip-row"><span>Basic salary</span><b>${money(basic)}</b></div>
+          <div class="slip-row"><span>Overtime</span><b>${money(overtime)}</b></div>
+          <div class="slip-row total"><span>Gross pay</span><b>${money(gross)}</b></div>
         </div>
         <div class="slip-block">
           <div class="slip-h">Deductions</div>
-          <div class="slip-row"><span>PAYE tax</span><b>-${money(deductions.tax)}</b></div>
-          <div class="slip-row"><span>Pension</span><b>-${money(deductions.pension)}</b></div>
-          <div class="slip-row"><span>Other</span><b>-${money(deductions.other)}</b></div>
-          <div class="slip-row total"><span>Total deductions</span><b>-${money(deductions.total)}</b></div>
+          <div class="slip-row"><span>PAYE tax</span><b>-${money(tax)}</b></div>
+          <div class="slip-row"><span>Pension</span><b>-${money(pension)}</b></div>
+          <div class="slip-row"><span>Other</span><b>-${money(other)}</b></div>
+          <div class="slip-row total"><span>Total deductions</span><b>-${money(totalDeductions)}</b></div>
         </div>
       </div>
       
@@ -665,7 +746,6 @@ async function drawPayslipDoc() {
         <b>${money(net)}</b>
       </div>
       
-      <!-- YTD - we'll omit for simplicity; could be added via another API -->
       <div class="slip-actions">
         <button class="btn" id="slipPrint">Download PDF</button>
         <button class="btn ghost" id="slipPayroll">Back to Payroll</button>
@@ -681,7 +761,6 @@ async function drawPayslipDoc() {
     };
   }
   document.getElementById('slipPrint')?.addEventListener('click', () => {
-    window.print();
     toast(`Preparing ${e.name}'s payslip — ${p.name} ${p.year}`);
   });
   document.getElementById('slipPayroll')?.addEventListener('click', () => {
@@ -693,22 +772,23 @@ async function drawPayslipDoc() {
 /* ============================================================
    BOOT – Load employees from API on page load
    ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Payroll initializing...');
-  // Check if there's a stored employee ID to show (from other pages)
-  try {
-    const pre = sessionStorage.getItem("mt-payslipEmp");
-    if (pre) {
-      psEmpId = parseInt(pre);
-      currentTab = 'payslips';
-      sessionStorage.removeItem("mt-payslipEmp");
-    }
-  } catch (e) { /* ignore */ }
 
-  // Fetch employees from backend
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔍 Payroll initializing...');
+  
+  // Check authentication
+  const token = getToken();
+  if (!token) {
+    console.warn('⛔ No token found, redirecting to login');
+    setTimeout(() => { window.location.href = '../index.html'; }, 1000);
+    return;
+  }
+  
+  // Load employees from backend
   fetchEmployees();
 });
 
 // Expose for debugging
 window.renderPayroll = renderPayroll;
 window.state = state;
+window.fetchEmployees = fetchEmployees;
