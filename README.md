@@ -1,79 +1,86 @@
-# HR System Group 4
+# HR System — Group 4
 
-A simple HR management web application for tracking employees, attendance, payroll, time off, and performance reviews. The project is built as a static front-end demo with HTML, CSS, and JavaScript.
+A full-stack HR management app for tracking employees, attendance, payroll, time off, and performance reviews. Static HTML/CSS/JS front-end (Module 1) backed by a Node.js + Express + MySQL API (Module 2), built for the ModernTech Solutions case study.
 
 ## Group Members
 
-- Xabiso Phendu
-- Rasool Fredericks
-- Rushin Presence
-- Nikita Muller
+- Nikita Muller — Auth, Attendance, Time Off
+- Xabiso Phendu — Employees, Performance Reviews
+- Rasool Fredericks — Payroll
+- Rushin Presence — Dashboard
 
-## Overview
+## Tech Stack
 
-This application provides a modern HR dashboard experience for managing key workforce operations in one place. It includes a login page, dashboard, employee management, attendance tracking, leave requests, payroll slips, and performance review tools.
+Node.js, Express (ES Modules), MySQL (`mysql2`), JWT auth, `bcrypt` password hashing.
 
 ## Links
 
-**Figma Link**
-https://www.figma.com/design/WJ8ZhGRUw5z5NtMklnHl1D/HR-System---Group-4?node-id=0-1&t=vna3TdWFUjLamIdf-1 
-
-**GitHub Repo**
-https://github.com/nikitamullerr/HR_System-Group-4.git
-
-**GitHub Live Link**
-https://nikitamullerr.github.io/HR_System-Group-4/ 
-
-**HR Group - Documentation**
-https://docs.google.com/document/d/1VuhvWDlhzR18jsjG5No5b2fd3wmIOFVNX-AYX-hzXrI/edit?usp=sharing
-
-## Features
-
-- Secure demo login screen
-- Dashboard overview for HR operations
-- Employee information and management views
-- Attendance tracking and attendance records
-- Time-off and leave management
-- Payroll and payslip viewing
-- Performance review pages
+- **ERD:** ![alt text](<Backend_ModernTech Solutions.drawio.png>)
+- **GitHub Repo:** https://github.com/nikitamullerr/Group-4_HRSystem_Project2.git
+- **Live front-end:** 
+- **Docs:** https://docs.google.com/document/d/1VuhvWDlhzR18jsjG5No5b2fd3wmIOFVNX-AYX-hzXrI
 
 ## Project Structure
 
-- index.html — login page
-- dashboard.html — main dashboard entry point
-- employees.html — employee-related interface
-- attendance.html — attendance tracking page
-- time_off.html — leave/time-off page
-- payroll_payslips.html — payroll and payslip views
-- performance_review.html — performance review page
-- css/ — stylesheets
-- javascript/ — page logic and interactivity
+```
+HR_System-Group-4/
+  index.html, dashboard.html, employees.html,
+  attendance.html, time_off.html,
+  payroll_payslips.html, performance_review.html
+  css/, javascript/
+  server/
+    config/db.js              — MySQL connection
+    middleware/auth.js         — JWT auth guard
+    models/                     — database queries
+    controllers/                 — request handling per feature
+    routes/                       — endpoint definitions
+    database/schema.sql            — tables + seed data
+    scripts/hash_password.js        — password hashing helper
+    server.js                        — entry point
+```
+
+## Database
+
+Six MySQL tables: `departments`, `employees` (hub table, holds login credentials), `attendance`, `leave_requests`, `payroll`, `performance_reviews` — all foreign-keyed to `employees`. Full schema in `server/database/schema.sql`.
+
+## API
+
+All routes except login require `Authorization: Bearer <token>`.
+
+- `POST /api/auth/login`
+- `GET/POST/PUT/DELETE /api/employees`
+- `GET/POST /api/attendance`
+- `GET/POST /api/leave-requests`, `PUT /api/leave-requests/:id/status`
+- `GET /api/payroll`, `POST /api/payroll/run`
+- `GET/POST /api/performance-reviews`
+- `GET /api/dashboard/summary`
+
+## Getting Started
+
+```bash
+git clone https://github.com/nikitamullerr/HR_System-Group-4.git
+cd HR_System-Group-4/server
+npm install
+cp .env.example .env   # fill in your MySQL credentials + a JWT secret
+mysql -u root -p -e "CREATE DATABASE moderntech_hr"
+mysql -u root -p moderntech_hr < database/schema.sql
+npm run dev
+```
+
+Check `http://localhost:4000/api/health` returns `{"status":"ok"}`. Open `index.html` for the front-end.
 
 ## Demo Credentials
 
-Use the following demo account to sign in:
+Login is by **email**. Password for every seeded account: `password123`.
 
-- Username: ModernTech
-- Password: moderntech$
-
-## Running the Project
-
-Because this project is a static web app, you can open the files directly in a browser. For a more reliable local preview, run a simple server from the project folder
-
-## Notes
-
-This is a front-end demonstration project and uses local sample data stored in JSON files such as employee_info.json, attendance.json, and payroll_data.json.
+- Admin: `admin@moderntech.com`
 
 ## Challenges
 
-- **Inconsistent data sources** — Some pages (`dashboard.js`, `employees.js`, `performance_review.js`) use sample data embedded directly in JS, while others (`time_off.js`, `attendance.js`) `fetch()` the same kind of data from `attendance.json`, `employee_info.json`, and `payroll_data.json`. Keeping both approaches in sync was easy to get wrong.
-- **Relative paths for fetched data** — The JSON files sit at the project root, but the pages loading them don't. A wrong relative path in `fetch()` fails silently (no error, just missing data), which made bugs hard to trace.
-- **Responsive layout** — Supporting screen sizes from mobile up to desktop meant layering multiple media queries in `style.css` and testing each page at every breakpoint.
-- **Team coordination** — Splitting ownership across four people while keeping the design and code style consistent across pages built independently.
+- **Module 1:** inconsistent data sources (embedded JS vs. fetched JSON) and silent path failures — resolved in Module 2 by having every page call the real API.
+- **ES Modules:** the back-end uses `import`/`export` throughout, not `require`/`module.exports` — mixing the two caused early setup errors.
+- **Team coordination on `server.js`:** the one file every route gets mounted into. Rule: build and test locally, then add your two lines and merge immediately.
 
 ## Future Enhancements
 
--	Replace dummy/embedded data with a real backend and database and standardise data loading across all pages.
--	Add real authentication in place of the hardcoded demo login.
--	Add loading states for pages using fetch(), and persist changes instead of resetting on refresh.
--	Extend testing coverage across more browsers and devices.
+Refresh tokens, pagination/search, stricter role-based views, automated tests, hosting the back-end externally.

@@ -8,7 +8,9 @@ import employeeRoutes from './routes/employeeRoutes.js';
 import departmentRoutes from './routes/departmentRoutes.js';  // ← ADD THIS
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import timeOffRoutes from './routes/timeOffRoutes.js';
-import dashboardRoutes from './routes/dashboardRoutes.js';
+import payrollRoutes from './routes/payrollRoutes.js';
+
+// Performance review routes
 import performanceReviewRoutes from './routes/performanceReviewRoutes.js';
 
 // Load environment variables
@@ -40,6 +42,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/timeoff', timeOffRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/performance-reviews', performanceReviewRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 // ============================================
 // TEST ROUTE
