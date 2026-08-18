@@ -15,10 +15,9 @@ Node.js, Express (ES Modules), MySQL (`mysql2`), JWT auth, `bcrypt` password has
 
 ## Links
 
-- **Figma:** https://www.figma.com/design/WJ8ZhGRUw5z5NtMklnHl1D/HR-System---Group-4
-- **ERD:** _add dbdiagram.io link here_
-- **GitHub Repo:** https://github.com/nikitamullerr/HR_System-Group-4.git
-- **Live front-end:** https://nikitamullerr.github.io/HR_System-Group-4/
+- **ERD:** ![alt text](<Backend_ModernTech Solutions.drawio.png>)
+- **GitHub Repo:** https://github.com/nikitamullerr/Group-4_HRSystem_Project2.git
+- **Live front-end:** 
 - **Docs:** https://docs.google.com/document/d/1VuhvWDlhzR18jsjG5No5b2fd3wmIOFVNX-AYX-hzXrI
 
 ## Project Structure
