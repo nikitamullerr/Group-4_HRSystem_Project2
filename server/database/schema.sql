@@ -264,9 +264,64 @@ INSERT INTO performance_reviews (employee_id, reviewer, rating, feedback) VALUES
 (9, 'Finance Manager', 4, 'Accurate accounting, good attention to detail'),
 (10, 'Support Manager', 3, 'Good with customers, needs more technical training');
 
+USE moderntech_hr;
+
+-- Delete existing admin if any
+DELETE FROM employees WHERE email = 'admin@moderntech.com';
+
+-- Insert admin with proper password hash for 'password123'
+INSERT INTO employees (
+    first_name, 
+    last_name, 
+    email, 
+    department_id, 
+    position, 
+    password_hash, 
+    role
+) VALUES (
+    'Admin', 
+    'User', 
+    'admin@moderntech.com', 
+    1, 
+    'System Admin', 
+    '$2b$10$N9qo8uLOickgx2ZMRZoMy.Mr/.ZwpA8Z8H5Zx5x5x5x5x5x5x5x', 
+    'admin'
+);
+
+-- Verify the user was created
+SELECT id, email, first_name, last_name, role FROM employees WHERE email = 'admin@moderntech.com';
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'password123';
+FLUSH PRIVILEGES;
+
+USE moderntech_hr;
+SELECT id, email, role FROM employees WHERE email = 'admin@moderntech.com';
+
+USE moderntech_hr;
+
+UPDATE employees 
+SET password_hash = '$2b$10$GK3qyA9vZhGiEmcyrIrEuuegUh6P1QyskLQGeFefZUxM1hIJUcDEm' 
+WHERE email = 'admin@moderntech.com';
+
+-- Verify the update
+SELECT id, email, role, LEFT(password_hash, 20) as password_hash
+FROM employees 
+WHERE email = 'admin@moderntech.com';
+
+
+-- Update with the CORRECT hash for 'password123'
+UPDATE employees 
+SET password_hash = '$2b$10$GK3qyA9vZhGiEmcyrIrEuuegUh6P1QyskLQGeFefZUxM1hIJUcDEm' 
+WHERE email = 'admin@moderntech.com';
+
+-- Verify the update
+SELECT id, email, password_hash FROM employees WHERE email = 'admin@moderntech.com';
+
 -- =====================================================
 -- 4. VERIFICATION QUERIES (Optional - uncomment to run)
 -- =====================================================
+
+
 -- SELECT 'DEPARTMENTS' AS Table, COUNT(*) AS Rows FROM departments
 -- UNION
 -- SELECT 'EMPLOYEES', COUNT(*) FROM employees
