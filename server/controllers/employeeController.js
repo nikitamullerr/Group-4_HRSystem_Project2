@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import {
     findAll,
     findById,
@@ -10,7 +11,6 @@ import {
 export const getAllEmployees = async (req, res, next) => {
     try {
         const employees = await findAll();
-
         res.status(200).json(employees);
     } catch (err) {
         next(err);
@@ -21,13 +21,10 @@ export const getAllEmployees = async (req, res, next) => {
 export const getEmployeeById = async (req, res, next) => {
     try {
         const { id } = req.params;
-
         const employee = await findById(id);
 
         if (!employee) {
-            return res.status(404).json({
-                error: 'Employee not found'
-            });
+            return res.status(404).json({ error: 'Employee not found' });
         }
 
         res.status(200).json(employee);
@@ -36,7 +33,7 @@ export const getEmployeeById = async (req, res, next) => {
     }
 };
 
-// Create a new employee
+// Create a new employee (with password hashing)
 export const createEmployee = async (req, res, next) => {
     try {
         const {
@@ -45,14 +42,14 @@ export const createEmployee = async (req, res, next) => {
             email,
             department_id,
             position,
-            password_hash,
+            password,        // ✅ Now accepting 'password' from the request
             role
         } = req.body;
 
         // Required field validation
-        if (!first_name || !last_name || !email || !department_id) {
+        if (!first_name || !last_name || !email || !department_id || !password) {
             return res.status(400).json({
-                error: 'First name, last name, email and department are required'
+                error: 'First name, last name, email, department, and password are required'
             });
         }
 
@@ -70,13 +67,16 @@ export const createEmployee = async (req, res, next) => {
             });
         }
 
+        // Hash the password
+        const password_hash = await bcrypt.hash(password, 10);
+
         const employeeId = await create({
             first_name,
             last_name,
             email,
             department_id,
             position,
-            password_hash,
+            password_hash,      // ✅ Pass the hashed password
             role: role || 'employee'
         });
 
@@ -85,6 +85,7 @@ export const createEmployee = async (req, res, next) => {
             id: employeeId
         });
     } catch (err) {
+        console.error('Error creating employee:', err);
         next(err);
     }
 };
@@ -93,7 +94,6 @@ export const createEmployee = async (req, res, next) => {
 export const updateEmployee = async (req, res, next) => {
     try {
         const { id } = req.params;
-
         const {
             first_name,
             last_name,
@@ -103,21 +103,18 @@ export const updateEmployee = async (req, res, next) => {
             role
         } = req.body;
 
-        // Required field validation
         if (!first_name || !last_name || !email || !department_id) {
             return res.status(400).json({
                 error: 'First name, last name, email and department are required'
             });
         }
 
-        // Basic email validation
         if (!email.includes('@')) {
             return res.status(400).json({
                 error: 'Please provide a valid email address'
             });
         }
 
-        // Department ID validation
         if (isNaN(Number(department_id))) {
             return res.status(400).json({
                 error: 'Department ID must be a number'
@@ -151,7 +148,6 @@ export const updateEmployee = async (req, res, next) => {
 export const deleteEmployee = async (req, res, next) => {
     try {
         const { id } = req.params;
-
         const affectedRows = await remove(id);
 
         if (affectedRows === 0) {
