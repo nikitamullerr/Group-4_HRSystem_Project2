@@ -62,14 +62,6 @@ try{document.documentElement.setAttribute("data-theme",localStorage.getItem("mt-
   const $ = id => document.getElementById(id);
   const errorEl = $("loginError");
   
-  // Check if user is already logged in
-  function checkAuth() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      window.location.href = 'dashboard.html';
-    }
-  }
-  
   // Show error message
   function showError(msg) {
     errorEl.textContent = msg;
@@ -143,11 +135,8 @@ try{document.documentElement.setAttribute("data-theme",localStorage.getItem("mt-
     }
   }
   
-  // Check auth status on page load
+  // Auto-fill remembered email on page load
   document.addEventListener('DOMContentLoaded', function() {
-    checkAuth();
-    
-    // Auto-fill remembered email
     const rememberedEmail = localStorage.getItem('remembered_email');
     if (rememberedEmail) {
       $("email").value = rememberedEmail;
