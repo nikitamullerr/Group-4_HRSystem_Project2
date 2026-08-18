@@ -321,136 +321,110 @@ function applyTheme(theme) {
 }
 
 /* ==================================================
-   EMPLOYEE DATA
-   Embedded directly so the page works with
-   Live Server and File Explorer.
+   API EMPLOYEE DATA
+   Employees are now loaded from the Node.js backend
+   instead of using hard-coded frontend data.
 ================================================== */
 
-let employees = [
-
-    {
-        employeeId: 1,
-        name: "Sibongile Nkosi",
-        position: "Software Engineer",
-        department: "Development",
-        salary: 70000,
-        employmentHistory:
-            "Joined in 2015, promoted to Senior in 2018",
-        contact:
-            "sibongile.nkosi@moderntech.com"
-    },
-
-    {
-        employeeId: 2,
-        name: "Lungile Moyo",
-        position: "HR Manager",
-        department: "HR",
-        salary: 80000,
-        employmentHistory:
-            "Joined in 2013, promoted to Manager in 2017",
-        contact:
-            "lungile.moyo@moderntech.com"
-    },
-
-    {
-        employeeId: 3,
-        name: "Thabo Molefe",
-        position: "Quality Analyst",
-        department: "QA",
-        salary: 55000,
-        employmentHistory:
-            "Joined in 2018",
-        contact:
-            "thabo.molefe@moderntech.com"
-    },
-
-    {
-        employeeId: 4,
-        name: "Keshav Naidoo",
-        position: "Sales Representative",
-        department: "Sales",
-        salary: 60000,
-        employmentHistory:
-            "Joined in 2020",
-        contact:
-            "keshav.naidoo@moderntech.com"
-    },
-
-    {
-        employeeId: 5,
-        name: "Zanele Khumalo",
-        position: "Marketing Specialist",
-        department: "Marketing",
-        salary: 58000,
-        employmentHistory:
-            "Joined in 2019",
-        contact:
-            "zanele.khumalo@moderntech.com"
-    },
-
-    {
-        employeeId: 6,
-        name: "Sipho Zulu",
-        position: "UI/UX Designer",
-        department: "Design",
-        salary: 65000,
-        employmentHistory:
-            "Joined in 2016",
-        contact:
-            "sipho.zulu@moderntech.com"
-    },
-
-    {
-        employeeId: 7,
-        name: "Naledi Moeketsi",
-        position: "DevOps Engineer",
-        department: "IT",
-        salary: 72000,
-        employmentHistory:
-            "Joined in 2017",
-        contact:
-            "naledi.moeketsi@moderntech.com"
-    },
-
-    {
-        employeeId: 8,
-        name: "Farai Gumbo",
-        position: "Content Strategist",
-        department: "Marketing",
-        salary: 56000,
-        employmentHistory:
-            "Joined in 2021",
-        contact:
-            "farai.gumbo@moderntech.com"
-    },
-
-    {
-        employeeId: 9,
-        name: "Karabo Dlamini",
-        position: "Accountant",
-        department: "Finance",
-        salary: 62000,
-        employmentHistory:
-            "Joined in 2018",
-        contact:
-            "karabo.dlamini@moderntech.com"
-    },
-
-    {
-        employeeId: 10,
-        name: "Fatima Patel",
-        position: "Customer Support Lead",
-        department: "Support",
-        salary: 58000,
-        employmentHistory:
-            "Joined in 2016",
-        contact:
-            "fatima.patel@moderntech.com"
-    }
-
-];
+let employees = [];
 
 let currentEmployeeId = null;
+
+/* ==================================================
+   API CONFIGURATION
+   Uses the running Node.js/Express backend.
+================================================== */
+
+const API_URL = "http://localhost:5000/api/employees";
+
+/* ==================================================
+   GET AUTH TOKEN
+   The login token is stored in localStorage.
+================================================== */
+
+function getAuthToken() {
+
+    return localStorage.getItem("token");
+
+}
+
+/* ==================================================
+   LOAD EMPLOYEES FROM BACKEND
+   Retrieves employee records from MySQL through
+   the Express API.
+================================================== */
+
+async function loadEmployees() {
+
+    const token = getAuthToken();
+
+    if (!token) {
+
+        console.error("No authentication token found.");
+
+        return;
+
+    }
+
+    try {
+
+        const response = await fetch(API_URL, {
+
+            method: "GET",
+
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error || "Failed to load employees"
+            );
+
+        }
+
+        employees = data.map(employee => ({
+
+            employeeId: employee.id,
+
+            name:
+                `${employee.first_name} ${employee.last_name}`,
+
+            position:
+                employee.position || "",
+
+            department:
+                employee.department || "",
+
+            contact:
+                employee.email || "",
+
+            role:
+                employee.role || ""
+
+        }));
+
+        populateDepartments();
+
+        updateStatistics();
+
+        renderEmployees(employees);
+
+    } catch (error) {
+
+        console.error(
+            "Error loading employees:",
+            error
+        );
+
+    }
+
+}
 
 /* ==================================================
    PAGE RENDERING
@@ -671,17 +645,14 @@ function updateStatistics() {
     totalDepartments.textContent =
         departments.length;
 
-    const average =
-        employees.reduce(
-            (sum, employee) =>
-                sum + employee.salary,
-            0
-        ) / employees.length;
+     /* ==================================================
+   SALARY NOTE
+   Salary is not currently returned by the employee
+   backend, so the dashboard salary KPI is disabled
+   until salary is added to the database/API.
+================================================== */
 
-    averageSalary.textContent =
-        "R" +
-        Math.round(average)
-            .toLocaleString();
+averageSalary.textContent = "N/A";
 
 }
 
@@ -814,6 +785,8 @@ function renderEmployees(employeeList) {
 
 /* ==================================================
    VIEW EMPLOYEE
+   Displays employee information retrieved from
+   the backend API.
 ================================================== */
 
 function viewEmployee(id) {
@@ -854,22 +827,13 @@ function viewEmployee(id) {
         </div>
 
         <div class="line">
-            <span>Salary</span>
-            <strong>
-                R${employee.salary.toLocaleString()}
-            </strong>
-        </div>
-
-        <div class="line">
             <span>Contact</span>
             <strong>${employee.contact}</strong>
         </div>
 
         <div class="line">
-            <span>History</span>
-            <strong>
-                ${employee.employmentHistory}
-            </strong>
+            <span>Role</span>
+            <strong>${employee.role}</strong>
         </div>
 
     `;
@@ -882,93 +846,281 @@ function viewEmployee(id) {
 
 /* ==================================================
    EDIT EMPLOYEE
+   Loads an employee into the existing edit modal.
 ================================================== */
 
-function editEmployee(id) {
+async function editEmployee(id) {
 
-    const employee =
-        employees.find(
-            emp =>
-                emp.employeeId === id
+    try {
+
+        const token = getAuthToken();
+
+        const response = await fetch(
+            `${API_URL}/${id}`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization":
+                        `Bearer ${token}`
+                }
+            }
         );
 
-    if (!employee) return;
+        const employee = await response.json();
 
-    currentEmployeeId = id;
+        if (!response.ok) {
 
-    document.getElementById(
-        "editName"
-    ).value = employee.name;
+            throw new Error(
+                employee.error ||
+                "Unable to load employee"
+            );
 
-    document.getElementById(
-        "editPosition"
-    ).value = employee.position;
+        }
 
-    document.getElementById(
-        "editDepartment"
-    ).value = employee.department;
+        currentEmployeeId = id;
 
-    document.getElementById(
-        "editContact"
-    ).value = employee.contact;
+        document.getElementById(
+            "editName"
+        ).value =
+            `${employee.first_name} ${employee.last_name}`;
 
-    document.getElementById(
-        "editSalary"
-    ).value = employee.salary;
+        document.getElementById(
+            "editPosition"
+        ).value =
+            employee.position || "";
 
-    document
-        .getElementById("editModal")
-        .classList.add("show");
+        document.getElementById(
+            "editDepartment"
+        ).value =
+            employee.department || "";
+
+        document.getElementById(
+            "editContact"
+        ).value =
+            employee.email || "";
+
+        /* Salary is not part of the current API. */
+        document.getElementById(
+            "editSalary"
+        ).value = "";
+
+        document
+            .getElementById("editModal")
+            .classList.add("show");
+
+    } catch (error) {
+
+        console.error(
+            "Error loading employee:",
+            error
+        );
+
+    }
 
 }
 
 /* ==================================================
    SAVE EMPLOYEE CHANGES
+   Sends the edited employee to the Node.js backend
+   using the PUT endpoint.
 ================================================== */
 
-function saveEmployeeChanges() {
+async function saveEmployeeChanges() {
 
-    const employee =
-        employees.find(
-            emp =>
-                emp.employeeId === currentEmployeeId
+    const token = getAuthToken();
+
+    if (!token) {
+
+        console.error(
+            "No authentication token found."
         );
 
-    if (!employee) return;
+        return;
 
-    employee.name =
+    }
+
+    const fullName =
         document.getElementById(
             "editName"
-        ).value;
+        ).value.trim();
 
-    employee.position =
+    const position =
         document.getElementById(
             "editPosition"
-        ).value;
+        ).value.trim();
 
-    employee.department =
-        document.getElementById(
-            "editDepartment"
-        ).value;
-
-    employee.contact =
+    const email =
         document.getElementById(
             "editContact"
-        ).value;
+        ).value.trim();
 
-    employee.salary =
-        Number(
-            document.getElementById(
-                "editSalary"
-            ).value
+    const departmentName =
+        document.getElementById(
+            "editDepartment"
+        ).value.trim();
+
+    /* ==================================================
+       NAME VALIDATION
+       The backend requires first_name and last_name.
+    ================================================== */
+
+    const nameParts =
+        fullName.split(/\s+/);
+
+    const first_name =
+        nameParts.shift();
+
+    const last_name =
+        nameParts.join(" ");
+
+    if (!first_name || !last_name) {
+
+        alert(
+            "Please enter the employee's first and last name."
         );
 
-    renderEmployees(employees);
-    updateStatistics();
+        return;
 
-    document
-        .getElementById("editModal")
-        .classList.remove("show");
+    }
+
+    /* ==================================================
+       DEPARTMENT LOOKUP
+       The backend requires department_id, while the
+       frontend currently displays the department name.
+    ================================================== */
+
+    const existingEmployee =
+        employees.find(
+            employee =>
+                employee.employeeId === currentEmployeeId
+        );
+
+    if (!existingEmployee) return;
+
+    /*
+       We need the department_id from the employee
+       originally returned by the backend.
+    */
+
+    let department_id = null;
+
+    try {
+
+        const employeeResponse =
+            await fetch(
+                `${API_URL}/${currentEmployeeId}`,
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+        const employeeData =
+            await employeeResponse.json();
+
+        department_id =
+            employeeData.department_id;
+
+    } catch (error) {
+
+        console.error(
+            "Unable to retrieve department ID:",
+            error
+        );
+
+        return;
+
+    }
+
+    if (!department_id) {
+
+        alert(
+            "Employee department could not be identified."
+        );
+
+        return;
+
+    }
+
+    /* ==================================================
+       SEND PUT REQUEST
+    ================================================== */
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/${currentEmployeeId}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+
+                        first_name,
+
+                        last_name,
+
+                        email,
+
+                        department_id,
+
+                        position,
+
+                        role:
+                            existingEmployee.role ||
+                            "employee"
+
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Employee update failed"
+            );
+
+        }
+
+        console.log(
+            "Employee updated successfully:",
+            data
+        );
+
+        document
+            .getElementById("editModal")
+            .classList.remove("show");
+
+        /* Reload employees from MySQL. */
+        await loadEmployees();
+
+    } catch (error) {
+
+        console.error(
+            "Error updating employee:",
+            error
+        );
+
+        alert(
+            "Unable to update employee."
+        );
+
+    }
 
 }
 
@@ -1176,21 +1328,15 @@ function initialiseThemeButton() {
 
 /* ==================================================
    INITIALISATION
+   Builds the page and then loads employee records
+   from the Node.js backend.
 ================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    async function () {
 
         renderEmployeesPage();
-
-        populateDepartments();
-
-        updateStatistics();
-
-        renderEmployees(
-            employees
-        );
 
         initialiseThemeButton();
 
@@ -1201,6 +1347,12 @@ document.addEventListener(
         applyTheme(
             currentTheme()
         );
+
+        /*
+         * Load the real employee records from MySQL
+         * through the Express API.
+         */
+        await loadEmployees();
 
         console.log(
             "Employees page initialised successfully."

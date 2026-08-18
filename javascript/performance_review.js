@@ -343,144 +343,124 @@ function applyTheme(theme) {
 
 /* ==================================================
    PERFORMANCE REVIEW DATA
+   Reviews are now loaded from the backend database.
 ================================================== */
 
-let reviews = [
+let reviews = [];
 
-    {
-        id: 1,
-        employee: "Sibongile Nkosi",
-        department: "Development",
-        rating: 5,
-        reviewer: "HR Manager",
-        strengths: "Leadership, Coding Excellence",
-        improvements: "None",
-        goals: "Lead larger projects",
-        comments: "Outstanding performer",
-        status: "Top Performer"
-    },
+const API_URL =
+    "http://localhost:5000/api/performance-reviews";
 
-    {
-        id: 2,
-        employee: "Lungile Moyo",
-        department: "HR",
-        rating: 5,
-        reviewer: "Executive Board",
-        strengths: "Leadership, Communication",
-        improvements: "None",
-        goals: "Mentor junior managers",
-        comments: "Exceptional management skills",
-        status: "Top Performer"
-    },
+/* ==================================================
+   LOAD PERFORMANCE REVIEWS
+   Fetches performance reviews from the backend API.
+================================================== */
 
-    {
-        id: 3,
-        employee: "Thabo Molefe",
-        department: "QA",
-        rating: 4,
-        reviewer: "QA Lead",
-        strengths: "Attention to Detail",
-        improvements: "Automation Testing",
-        goals: "Improve automation coverage",
-        comments: "Strong contributor",
-        status: "Outstanding"
-    },
+async function loadReviews() {
 
-    {
-        id: 4,
-        employee: "Keshav Naidoo",
-        department: "Sales",
-        rating: 4,
-        reviewer: "Sales Director",
-        strengths: "Client Relations",
-        improvements: "Closing Efficiency",
-        goals: "Increase monthly targets",
-        comments: "Consistent sales results",
-        status: "Outstanding"
-    },
+    const token =
+        localStorage.getItem("mt-auth");
 
-    {
-        id: 5,
-        employee: "Zanele Khumalo",
-        department: "Marketing",
-        rating: 3,
-        reviewer: "Marketing Manager",
-        strengths: "Creativity",
-        improvements: "Campaign Reporting",
-        goals: "Improve analytics reporting",
-        comments: "Average performance",
-        status: "Needs Improvement"
-    },
+    // IMPORTANT:
+    // The backend protects performance-review routes,
+    // so the authentication token must be sent.
+    if (!token) {
 
-    {
-        id: 6,
-        employee: "Sipho Zulu",
-        department: "Design",
-        rating: 4,
-        reviewer: "Creative Director",
-        strengths: "UI Design",
-        improvements: "Time Management",
-        goals: "Reduce project delays",
-        comments: "Reliable designer",
-        status: "Outstanding"
-    },
+        console.error(
+            "No authentication token found."
+        );
 
-    {
-        id: 7,
-        employee: "Naledi Moeketsi",
-        department: "IT",
-        rating: 5,
-        reviewer: "IT Director",
-        strengths: "Infrastructure Management",
-        improvements: "Documentation",
-        goals: "Improve documentation process",
-        comments: "Excellent DevOps engineer",
-        status: "Top Performer"
-    },
-
-    {
-        id: 8,
-        employee: "Farai Gumbo",
-        department: "Marketing",
-        rating: 3,
-        reviewer: "Marketing Manager",
-        strengths: "Content Creation",
-        improvements: "SEO",
-        goals: "Improve SEO skills",
-        comments: "Needs development",
-        status: "Needs Improvement"
-    },
-
-    {
-        id: 9,
-        employee: "Karabo Dlamini",
-        department: "Finance",
-        rating: 4,
-        reviewer: "Finance Manager",
-        strengths: "Accuracy",
-        improvements: "Forecasting",
-        goals: "Improve forecasting skills",
-        comments: "Dependable employee",
-        status: "Outstanding"
-    },
-
-    {
-        id: 10,
-        employee: "Fatima Patel",
-        department: "Support",
-        rating: 3,
-        reviewer: "Support Manager",
-        strengths: "Customer Care",
-        improvements: "Leadership",
-        goals: "Develop leadership skills",
-        comments: "Average performance",
-        status: "Needs Improvement"
+        return;
     }
 
-];
+    try {
 
-let currentReviewId = null;
-let currentStatusFilter = "All";
+        const response =
+            await fetch(API_URL, {
+
+                method: "GET",
+
+                headers: {
+                    "Authorization":
+                        `Bearer ${token}`
+                }
+
+            });
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Failed to load performance reviews"
+            );
+
+        }
+
+        // Convert database records into the
+        // structure used by the frontend.
+        reviews = data.map(review => ({
+
+            id: review.id,
+
+            employeeId:
+                review.employee_id,
+
+            employee:
+                `Employee #${review.employee_id}`,
+
+            department:
+                "",
+
+            rating:
+                review.rating,
+
+            reviewer:
+                review.reviewer,
+
+            feedback:
+                review.feedback || "",
+
+            // These fields are not currently
+            // stored in the database table.
+            strengths: "",
+            improvements: "",
+            goals: "",
+            comments:
+                review.feedback || "",
+
+            status:
+                review.rating === 5
+                    ? "Top Performer"
+                    : review.rating === 4
+                        ? "Outstanding"
+                        : "Needs Improvement"
+
+        }));
+
+        populateDepartments();
+
+        updateStatistics();
+
+        renderReviews(reviews);
+
+        console.log(
+            "Performance reviews loaded from database:",
+            reviews
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error loading performance reviews:",
+            error
+        );
+
+    }
+
+}
 
 /* ==================================================
    PAGE RENDERING
@@ -1346,17 +1326,12 @@ function initialiseThemeButton() {
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    async () => {
 
         renderPerformanceReviewPage();
 
-        populateDepartments();
-
-        updateStatistics();
-
-        renderReviews(
-            reviews
-        );
+        // Load real performance reviews from the backend database.
+        await loadReviews();
 
         initialiseTabs();
 
