@@ -1,4 +1,4 @@
-import TimeOff from '../models/timeOff.js';
+import TimeOff from '../models/timeoff.js';
 
 export const getPendingLeaves = async (req, res) => {
     try {

@@ -525,31 +525,39 @@ async function viewPayslip(id) {
     return;
   }
 
-  const figures = payslipData.figures || {};
-  const basic = figures.basic || 0;
-  const ot = figures.overtime || 0;
-  const gross = figures.gross || 0;
-  const tax = figures.tax || 0;
-  const pension = figures.pension || 0;
-  const other = figures.other || 0;
-  const totalDeductions = figures.totalDeductions || 0;
-  const net = figures.net || 0;
+  console.log('📄 Full payslip data:', payslipData);
+
+  // ✅ Extract from the actual API response structure
+  const employee = payslipData.employee || {};
+  const payroll = payslipData.payroll || {};
+  const breakdown = payslipData.breakdown || {};
+  
+  const basic = breakdown.basicSalary || 0;
+  const allowances = breakdown.allowances || 0;
+  const bonuses = breakdown.bonuses || 0;
+  const deductions = breakdown.deductions || 0;
+  const totalPay = breakdown.total || 0;
+  const netPay = Number(payroll.netPay) || 0;
+  
+  const month = payroll.month ? new Date(payroll.month).toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A';
+  const status = payroll.status || 'N/A';
+  const generatedAt = payslipData.generatedAt ? new Date(payslipData.generatedAt).toLocaleString() : 'N/A';
 
   openModal(
-    "Payslip · " + e.name,
+    "Payslip · " + (employee.name || e.name),
     `
-      <p style="color:var(--muted);margin-bottom:12px">${e.role} · ${e.dept}</p>
-      <div class="line"><span>Period</span><b>${payslipData.period?.name || 'N/A'}</b></div>
+      <p style="color:var(--muted);margin-bottom:12px">${employee.position || e.role} · ${employee.department || e.dept}</p>
+      <div class="line"><span>Period</span><b>${month}</b></div>
+      <div class="line"><span>Status</span><b>${status}</b></div>
       <div class="pay-table" style="border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px">
         <div class="prow"><span>Basic Salary</span><span class="r"></span><span class="r">${money(basic)}</span></div>
-        <div class="prow"><span>Overtime</span><span class="r"></span><span class="r">${money(ot)}</span></div>
-        <div class="prow"><span>Gross Pay</span><span class="r"></span><span class="r">${money(gross)}</span></div>
-        <div class="prow"><span>Tax (PAYE)</span><span class="r"></span><span class="r">-${money(tax)}</span></div>
-        <div class="prow"><span>Pension</span><span class="r"></span><span class="r">-${money(pension)}</span></div>
-        <div class="prow"><span>Other Deductions</span><span class="r"></span><span class="r">-${money(other)}</span></div>
-        <div class="prow"><span>Total Deductions</span><span class="r"></span><span class="r">-${money(totalDeductions)}</span></div>
-        <div class="prow net"><span><b>Net Pay</b></span><span class="r"></span><span class="r">${money(net)}</span></div>
+        <div class="prow"><span>Allowances</span><span class="r"></span><span class="r">${money(allowances)}</span></div>
+        <div class="prow"><span>Bonuses</span><span class="r"></span><span class="r">${money(bonuses)}</span></div>
+        <div class="prow"><span>Deductions</span><span class="r"></span><span class="r">-${money(deductions)}</span></div>
+        <div class="prow" style="border-top:1px solid var(--line);"><span><b>Total Pay</b></span><span class="r"></span><span class="r">${money(totalPay)}</span></div>
+        <div class="prow net" style="border-top:2px solid var(--ok);"><span><b>Net Pay</b></span><span class="r"></span><span class="r">${money(netPay)}</span></div>
       </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px">Generated: ${generatedAt}</p>
     `,
     `
       <button class="btn line" id="mclose">Close</button>
@@ -567,12 +575,12 @@ async function viewPayslip(id) {
   };
   document.getElementById('mslip').onclick = () => {
     closeModal();
-    toast("Downloaded " + e.name + "'s payslip");
+    toast("Downloaded " + (employee.name || e.name) + "'s payslip");
   };
 }
 
 /* ============================================================
-   TAB 2: PAYSLIPS - now uses API for payslip document
+   PAYSLIPS - now uses API for payslip document
    ============================================================ */
 
 const PS_PERIODS = ["January", "February", "March", "April", "May", "June"]
