@@ -5,14 +5,12 @@ import dotenv from 'dotenv';
 // Import routes
 import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
-import departmentRoutes from './routes/departmentRoutes.js';  // ← ADD THIS
+import departmentRoutes from './routes/departmentRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import timeOffRoutes from './routes/timeOffRoutes.js';
-import dashboardRoutes from './routes/dashboardRoutes.js'; 
-import payrollRoutes from './routes/payrollRoutes.js';
-
-// Performance review routes
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import performanceReviewRoutes from './routes/performanceReviewRoutes.js';
+import payrollRoutes from './routes/payrollRoutes.js';  // ← MAKE SURE THIS EXISTS
 
 // Load environment variables
 dotenv.config();
@@ -20,9 +18,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// ============================================
-// MIDDLEWARE
-// ============================================
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,38 +29,35 @@ app.use((req, res, next) => {
     next();
 });
 
-// ============================================
-// ROUTES
-// ============================================
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
-app.use('/api/departments', departmentRoutes);  // ← ADD THIS
+app.use('/api/departments', departmentRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/timeoff', timeOffRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/performance-reviews', performanceReviewRoutes);
-app.use('/api/payroll', payrollRoutes);
+app.use('/api/payroll', payrollRoutes);  // ← MAKE SURE THIS EXISTS
 
-// ============================================
-// TEST ROUTE
-// ============================================
+// Test route
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Backend is running!' });
 });
 
-// ============================================
-// START SERVER
-// ============================================
+// Start server
 app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
     console.log('\n📋 Registered Routes:');
     console.log('   POST /api/auth/login');
     console.log('   GET  /api/employees');
-    console.log('   GET  /api/departments');       // ← NOW REGISTERED
-    console.log('   POST /api/departments');       // ← CREATE
-    console.log('   PUT  /api/departments/:id');   // ← UPDATE
-    console.log('   DELETE /api/departments/:id'); // ← DELETE
+    console.log('   GET  /api/departments');
     console.log('   GET  /api/attendance');
     console.log('   GET  /api/timeoff/pending');
     console.log('   GET  /api/dashboard/summary');
+    console.log('   GET  /api/payroll');  // ← SHOULD SHOW THIS
+    console.log('   GET  /api/payroll/summary');
+    console.log('   GET  /api/payroll/table');
+    console.log('   POST /api/payroll/run');
+    console.log('   GET  /api/payroll/payslip/:id');
+    console.log('   GET  /api/payroll/ytd/:employeeId');
 });
