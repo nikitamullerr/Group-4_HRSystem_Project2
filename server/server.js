@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import timeOffRoutes from './routes/timeOffRoutes.js';
+import payrollRoutes from './routes/payrollRoutes.js';
 
 // Performance review routes
 import performanceReviewRoutes from './routes/performanceReviewRoutes.js';
@@ -27,6 +28,7 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/timeoff', timeOffRoutes);
 app.use('/api/performance-reviews', performanceReviewRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 // Test route
 app.get('/api/test', (req, res) => {

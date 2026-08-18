@@ -1,17 +1,14 @@
-// routes/payrollRoutes.js
-const express = require("express");
+import express from 'express';
+import * as payrollController from '../controllers/payrollController.js';
+import { authenticate } from '../middleware/auth.js';
+
 const router = express.Router();
-const payrollController = require("../controllers/payrollController");
 
-// Uncomment and adjust if your other routes (e.g. employeeRoutes.js)
-// protect endpoints with an auth middleware:
-// const requireAuth = require("../middleware/authMiddleware");
-// router.use(requireAuth);
+// All payroll routes require authentication
+router.get('/summary', authenticate, payrollController.getSummary);
+router.get('/table', authenticate, payrollController.getTable);
+router.post('/run', authenticate, payrollController.runPayroll);
+router.get('/payslip/:employeeId', authenticate, payrollController.getPayslip);
+router.get('/ytd/:employeeId', authenticate, payrollController.getYTD);
 
-router.get("/summary", payrollController.getSummary);
-router.get("/table", payrollController.getTable);
-router.post("/run", payrollController.runPayroll);
-router.get("/payslip/:employeeId", payrollController.getPayslip);
-router.get("/ytd/:employeeId", payrollController.getYTD);
-
-module.exports = router;
+export default router;
