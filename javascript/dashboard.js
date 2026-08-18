@@ -13,9 +13,6 @@ const NAV = [
 
 /* =================================================================
    PAGE URL GENERATOR
-   -----------------------------------------------------------------
-   Generates the relative file path for each navigation page based
-   on the page ID.
    ================================================================= */
 
 function pageUrl(id) {
@@ -24,10 +21,6 @@ function pageUrl(id) {
 
 /* =================================================================
    TOPBAR HTML GENERATOR
-   -----------------------------------------------------------------
-   Creates the HTML for the application's top navigation bar,
-   including the logo, navigation links, theme toggle,
-   profile section, and hamburger menu.
    ================================================================= */
 
 function topbarHTML(active) {
@@ -108,10 +101,8 @@ window.addEventListener('scroll', () => {
 
 /* =================================================================
    THEME MANAGEMENT
-   -----------------------------------------------------------------
-   Handles light and dark mode functionality by saving the selected
-   theme to localStorage and updating the interface accordingly.
    ================================================================= */
+
 const THEME_KEY = "mt-theme";
 
 function currentTheme() { 
@@ -145,255 +136,219 @@ document.getElementById("themeBtn")?.addEventListener("click", () => {
 
 /* =================================================================
    PROFILE MENU
-   -----------------------------------------------------------------
-   Controls the profile dropdown menu, profile navigation,
-   logout functionality, and automatic closing of the menu.
    ================================================================= */
+
 document.getElementById("profileBtn")?.addEventListener("click", e => {
   e.stopPropagation();
   document.getElementById("profileMenu").classList.toggle("show");
 });
 document.getElementById("goProfile")?.addEventListener("click", () => { alert("Profile"); });
-document.getElementById("logoutBtn")?.addEventListener("click", () => { location.href = "../index.html"; });
+document.getElementById("logoutBtn")?.addEventListener("click", () => { 
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  location.href = "../index.html"; 
+});
 document.addEventListener("click", () => { document.getElementById("profileMenu")?.classList.remove("show"); });
 
 /* =================================================================
-   DUMMY EMPLOYEE DATA
-   -----------------------------------------------------------------
-   Contains sample attendance records and leave requests used for
-   demonstrating the HR dashboard.
+   API INTEGRATION - MATCHING YOUR BACKEND ROUTES
    ================================================================= */
-const ATTENDANCE_LEAVE = [
-  {employeeId:1,name:"Sibongile Nkosi",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Absent"},{date:"2025-07-27",status:"Present"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-22",reason:"Sick Leave",status:"Approved"},{date:"2024-12-01",reason:"Personal",status:"Pending"}]},
-  {employeeId:2,name:"Lungile Moyo",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Absent"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-15",reason:"Family Responsibility",status:"Denied"},{date:"2024-12-02",reason:"Vacation",status:"Approved"}]},
-  {employeeId:3,name:"Thabo Molefe",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Present"},{date:"2025-07-28",status:"Absent"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-10",reason:"Medical Appointment",status:"Approved"},{date:"2024-12-05",reason:"Personal",status:"Pending"}]},
-  {employeeId:4,name:"Keshav Naidoo",attendance:[{date:"2025-07-25",status:"Absent"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Present"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-20",reason:"Bereavement",status:"Approved"}]},
-  {employeeId:5,name:"Zanele Khumalo",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Absent"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2024-12-01",reason:"Childcare",status:"Pending"}]},
-  {employeeId:6,name:"Sipho Zulu",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Absent"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-18",reason:"Sick Leave",status:"Approved"}]},
-  {employeeId:7,name:"Naledi Moeketsi",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Present"},{date:"2025-07-28",status:"Absent"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-22",reason:"Vacation",status:"Pending"}]},
-  {employeeId:8,name:"Farai Gumbo",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Absent"},{date:"2025-07-27",status:"Present"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2024-12-02",reason:"Medical Appointment",status:"Approved"}]},
-  {employeeId:9,name:"Karabo Dlamini",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Present"},{date:"2025-07-28",status:"Absent"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2025-07-19",reason:"Childcare",status:"Denied"}]},
-  {employeeId:10,name:"Fatima Patel",attendance:[{date:"2025-07-25",status:"Present"},{date:"2025-07-26",status:"Present"},{date:"2025-07-27",status:"Absent"},{date:"2025-07-28",status:"Present"},{date:"2025-07-29",status:"Present"}],leaveRequests:[{date:"2024-12-03",reason:"Vacation",status:"Pending"}]},
-];
 
-/* =================================================================
-   PAYROLL DATA
-   -----------------------------------------------------------------
-   Stores payroll-related information including hours worked,
-   leave deductions, and calculated salaries.
-   ================================================================= */
-const PAYROLL = {
-  1:{hoursWorked:160,leaveDeductions:8,finalSalary:69500},
-  2:{hoursWorked:150,leaveDeductions:10,finalSalary:79000},
-  3:{hoursWorked:170,leaveDeductions:4,finalSalary:54800},
-  4:{hoursWorked:165,leaveDeductions:6,finalSalary:59700},
-  5:{hoursWorked:158,leaveDeductions:5,finalSalary:57850},
-  6:{hoursWorked:168,leaveDeductions:2,finalSalary:64800},
-  7:{hoursWorked:175,leaveDeductions:3,finalSalary:71800},
-  8:{hoursWorked:160,leaveDeductions:0,finalSalary:56000},
-  9:{hoursWorked:155,leaveDeductions:5,finalSalary:61500},
-  10:{hoursWorked:162,leaveDeductions:4,finalSalary:57750},
-};
+const API_BASE_URL = 'http://localhost:5000';
 
-/* =================================================================
-   EMPLOYEE METADATA
-   -----------------------------------------------------------------
-   Contains department and job role information for each employee.
-   ================================================================= */
-const EMP_META = {
-  1:{dept:"People",role:"HR Coordinator"},
-  2:{dept:"Sales",role:"Account Executive"},
-  3:{dept:"Engineering",role:"Software Engineer"},
-  4:{dept:"Finance",role:"Financial Analyst"},
-  5:{dept:"Marketing",role:"Marketing Specialist"},
-  6:{dept:"Operations",role:"Operations Analyst"},
-  7:{dept:"Engineering",role:"Senior Software Engineer"},
-  8:{dept:"Support",role:"Support Lead"},
-  9:{dept:"Product",role:"Product Manager"},
-  10:{dept:"Design",role:"UI Designer"},
-};
-
-/* =================================================================
-   DEPARTMENT DEFINITIONS
-   -----------------------------------------------------------------
-   Defines all company departments together with their display
-   colours for charts and dashboard components.
-   ================================================================= */
-const DEPARTMENTS = [
-  {name:"Engineering", color:"#1d4ed8"},
-  {name:"Sales", color:"#0ea5e9"},
-  {name:"Marketing", color:"#6366f1"},
-  {name:"Finance", color:"#0891b2"},
-  {name:"People", color:"#2563eb"},
-  {name:"Operations", color:"#3b82f6"},
-  {name:"Product", color:"#4f46e5"},
-  {name:"Support", color:"#38bdf8"},
-  {name:"Design", color:"#7c3aed"},
-];
-
-/* =================================================================
-   SUPPORTING CONSTANTS
-   -----------------------------------------------------------------
-   Stores reusable values such as department colour mappings,
-   avatar colours, review dates, and month names.
-   ================================================================= */
-const DEPT_COLOR = {};
-DEPARTMENTS.forEach(d => DEPT_COLOR[d.name] = d.color);
-
-const AVATAR_COLORS = ["#1d4ed8","#2563eb","#0ea5e9","#6366f1","#0891b2","#3b82f6","#4f46e5","#7c3aed","#0284c7","#4338ca"];
-
-const REVIEW_DATES = ["12 Jan 2026","03 Feb 2026","15 Mar 2026","22 Apr 2026","09 May 2026","18 Jun 2026"];
-
-const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-function parseDate(s) {
-  const [y,m,d] = s.split("-").map(Number);
-  return {y, m: m-1, d};
+function getAuthToken() {
+    return localStorage.getItem('token');
 }
 
-/* =================================================================
-   BUILD EMPLOYEES
-   ================================================================= */
-
-function buildEmployees() {
-  const employees = [];
-  
-  ATTENDANCE_LEAVE.forEach((rec) => {
-    const id = rec.employeeId;
-    const meta = EMP_META[id] || {dept:"Operations", role:"Team Member"};
-    const pay = PAYROLL[id] || {hoursWorked:160, leaveDeductions:0, finalSalary:0};
-    const [first, ...rest] = rec.name.split(" ");
-    const last = rest.join(" ");
-    
-    // Check if employee is on leave in July 2025
-    const onLeave = rec.leaveRequests.some(l => {
-      const dt = parseDate(l.date);
-      return l.status === "Approved" && dt.y === 2025 && dt.m === 6;
-    });
-    
-    employees.push({
-      id,
-      name: rec.name,
-      first,
-      last,
-      role: meta.role,
-      dept: meta.dept,
-      deptColor: DEPT_COLOR[meta.dept] || "#1d4ed8",
-      email: `${first.toLowerCase()}.${last.toLowerCase().replace(/[^a-z]/g,"")}@moderntech.io`,
-      phone: `+27 82 555 ${String(1000 + id*37).slice(0,4)}`,
-      salary: pay.finalSalary,
-      overtime: 0,
-      deductions: 0,
-      finalSalary: pay.finalSalary,
-      hoursWorked: pay.hoursWorked,
-      leaveDeductions: pay.leaveDeductions,
-      status: onLeave ? "On Leave" : "Active",
-      rating: ((id * 7) % 4) + 2,
-      hireYear: 2018 + (id % 7),
-      avatar: AVATAR_COLORS[id % AVATAR_COLORS.length],
-      reviewDate: REVIEW_DATES[id % REVIEW_DATES.length],
-      attendanceLog: rec.attendance,
-      leaveRequests: rec.leaveRequests
-    });
-  });
-  
-  return employees;
+// Get user info from localStorage
+function getUserInfo() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        return user || { name: 'HR Admin', role: 'HR Manager' };
+    } catch {
+        return { name: 'HR Admin', role: 'HR Manager' };
+    }
 }
 
-/* =================================================================
-   BUILD STATS
-   ================================================================= */
-
-function buildStats(employees) {
-  // Department counts
-  const deptCounts = {};
-  DEPARTMENTS.forEach(d => deptCounts[d.name] = 0);
-  employees.forEach(e => {
-    if (deptCounts[e.dept] !== undefined) deptCounts[e.dept]++;
-  });
-  
-  // Status counts
-  const statusCounts = { "Active": 0, "Remote": 0, "On Leave": 0 };
-  employees.forEach(e => {
-    if (statusCounts[e.status] !== undefined) statusCounts[e.status]++;
-  });
-  
-  // Total payroll
-  const totalMonthlyPayroll = employees.reduce((sum, e) => sum + e.finalSalary, 0);
-  
-  // Average rating
-  const avgRating = (employees.reduce((sum, e) => sum + e.rating, 0) / employees.length).toFixed(1);
-  
-  // Attendance data
-  const attDates = ATTENDANCE_LEAVE[0].attendance.map(a => a.date);
-  const dayLabels = attDates.map(d => {
-    const p = parseDate(d);
-    return `${p.d} ${months[p.m]}`;
-  });
-  
-  const dailyPresent = attDates.map(date => {
-    return employees.reduce((count, e) => {
-      const log = e.attendanceLog.find(a => a.date === date);
-      return count + (log && log.status === "Present" ? 1 : 0);
-    }, 0);
-  });
-  
-  const attendanceRate = Math.round(
-    employees.reduce((sum, e) => {
-      return sum + e.attendanceLog.filter(a => a.status === "Present").length;
-    }, 0) / (employees.length * attDates.length) * 100
-  );
-  
-  // Leave requests
-  let reqId = 0;
-  const requests = [];
-  employees.forEach(e => {
-    e.leaveRequests.forEach(l => {
-      const dt = parseDate(l.date);
-      if (l.status === "Pending") {
-        requests.push({
-          id: ++reqId,
-          name: e.name,
-          dept: e.dept,
-          type: l.reason,
-          year: dt.y,
-          month: dt.m,
-          day: dt.d
+const api = {
+    // Dashboard - GET /api/dashboard/summary
+    getDashboardSummary: async () => {
+        const token = getAuthToken();
+        if (!token) {
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/api/dashboard/summary`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
-      }
-    });
-  });
-  
-  return {
-    deptCounts,
-    statusCounts,
-    totalMonthlyPayroll,
-    avgRating,
-    dayLabels,
-    dailyPresent,
-    attendanceRate,
-    requests
-  };
+        
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response.json();
+    },
+    
+    // Employees - GET /api/employees
+    getEmployees: async () => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/employees`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // Departments - GET /api/departments
+    getDepartments: async () => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/departments`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // Attendance - GET /api/attendance
+    getAttendance: async () => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/attendance`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // ========================================
+    // TIME OFF ROUTES - MATCHING YOUR BACKEND
+    // ========================================
+    
+    // Get pending leaves - GET /api/timeoff/pending
+    getLeaveRequests: async () => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/timeoff/pending`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // Get all leaves - GET /api/timeoff/all
+    getAllLeaves: async () => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/timeoff/all`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // Create leave - POST /api/timeoff/create
+    createLeave: async (leaveData) => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/timeoff/create`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(leaveData)
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // Approve leave - PUT /api/timeoff/:id/approve
+    approveLeave: async (id) => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/timeoff/${id}/approve`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    },
+    
+    // Deny leave - PUT /api/timeoff/:id/deny
+    denyLeave: async (id) => {
+        const token = getAuthToken();
+        const response = await fetch(`${API_BASE_URL}/api/timeoff/${id}/deny`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    }
+};
+
+/* =================================================================
+   UPDATE USER INFO IN TOPBAR
+   ================================================================= */
+
+// Update the topbar with actual user info
+function updateUserInfo() {
+    const user = getUserInfo();
+    const avatarEl = document.querySelector('.av');
+    const nameEl = document.querySelector('.who b');
+    const roleEl = document.querySelector('.who span');
+    
+    if (avatarEl) {
+        avatarEl.textContent = (user.name || 'HA')[0].toUpperCase() + (user.name ? user.name.split(' ')[1]?.[0] || '' : '');
+    }
+    if (nameEl) nameEl.textContent = user.name || 'HR Admin';
+    if (roleEl) roleEl.textContent = user.role || 'HR Manager';
 }
+
+// Call this after topbar is injected
+setTimeout(updateUserInfo, 100);
 
 /* =================================================================
    STATE
    ================================================================= */
 
-const employees = buildEmployees();
-const stats = buildStats(employees);
-
-const state = {
-  employees: employees,
-  departments: DEPARTMENTS,
-  deptCounts: stats.deptCounts,
-  statusCounts: stats.statusCounts,
-  totalMonthlyPayroll: stats.totalMonthlyPayroll,
-  avgRating: stats.avgRating,
-  months: stats.dayLabels,
-  attendance: stats.dailyPresent,
-  attendanceRate: stats.attendanceRate,
-  requests: stats.requests
+let state = {
+    employees: [],
+    departments: [],
+    deptCounts: {},
+    statusCounts: {},
+    totalMonthlyPayroll: 0,
+    avgRating: 0,
+    months: [],
+    attendance: [],
+    attendanceRate: 0,
+    requests: []
 };
 
 /* =================================================================
@@ -503,49 +458,145 @@ function donutSVG(segments, size = 190, stroke = 26) {
 }
 
 /* =================================================================
-   APPLY LEAVE DECISION
+   LEAVE REQUEST FUNCTIONS - UPDATED FOR YOUR BACKEND
    ================================================================= */
 
-function applyLeaveDecision(id, approve) {
-  const r = state.requests.find(x => x.id === id);
-  if (!r) return null;
-  
-  if (approve) {
-    // Add to leave calendar (just keep in requests for now)
-    toast(`✅ Approved: ${r.name} — ${r.type}`);
-  } else {
-    toast(`❌ Denied: ${r.name} — ${r.type}`);
-  }
-  
-  state.requests = state.requests.filter(x => x.id !== id);
-  return r;
+async function applyLeaveDecision(id, approve) {
+    try {
+        let result;
+        if (approve) {
+            result = await api.approveLeave(id);
+            toast(`✅ Leave request approved`);
+        } else {
+            result = await api.denyLeave(id);
+            toast(`❌ Leave request denied`);
+        }
+        console.log('Leave update result:', result);
+        await loadDashboardData();
+    } catch (error) {
+        console.error('Error updating leave:', error);
+        toast('Error updating leave request: ' + error.message);
+    }
 }
 
 /* =================================================================
-   MAIN RENDER FUNCTION
+   LOAD DATA FROM BACKEND - UPDATED
+   ================================================================= */
+
+async function loadDashboardData() {
+    try {
+        // Show loading state
+        const main = document.getElementById('main');
+        if (main) {
+            main.innerHTML = `
+                <div style="text-align:center;padding:60px 20px;">
+                    <div style="font-size:48px;margin-bottom:20px;">⏳</div>
+                    <h3>Loading Dashboard...</h3>
+                    <p style="color:var(--muted);">Fetching latest data</p>
+                </div>
+            `;
+        }
+        
+        // Get all data from API
+        const summary = await api.getDashboardSummary();
+        const employees = await api.getEmployees();
+        const departments = await api.getDepartments();
+        const leaveRequests = await api.getLeaveRequests(); // GET /api/timeoff/pending
+        
+        console.log('Dashboard data loaded:', { summary, employees, departments, leaveRequests });
+        
+        // Calculate department counts
+        const deptCounts = {};
+        departments.forEach(d => deptCounts[d.name] = 0);
+        employees.forEach(e => {
+            const dept = e.department || e.department_id;
+            if (deptCounts[dept] !== undefined) {
+                deptCounts[dept]++;
+            }
+        });
+        
+        // Calculate status counts
+        const statusCounts = { 'Active': 0, 'On Leave': 0 };
+        employees.forEach(e => {
+            const status = e.status || 'Active';
+            if (statusCounts[status] !== undefined) {
+                statusCounts[status]++;
+            } else {
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            }
+        });
+        
+        // Build state
+        state = {
+            employees,
+            departments,
+            deptCounts,
+            statusCounts,
+            totalMonthlyPayroll: summary.totalMonthlyPayroll || 0,
+            avgRating: summary.avgRating || 0,
+            months: summary.dayLabels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            attendance: summary.dailyPresent || [0, 0, 0, 0, 0, 0],
+            attendanceRate: summary.attendanceRate || 0,
+            requests: leaveRequests || [],
+            departmentStats: summary.departmentStats || []  // Store department stats from backend
+        };
+        
+        // Render dashboard
+        renderDashboard();
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        const main = document.getElementById('main');
+        if (main) {
+            main.innerHTML = `
+                <div style="text-align:center;padding:60px 20px;">
+                    <div style="font-size:48px;margin-bottom:20px;">⚠️</div>
+                    <h3>Error Loading Dashboard</h3>
+                    <p style="color:var(--muted);">${error.message}</p>
+                    <p style="color:var(--muted);font-size:14px;margin-top:10px;">
+                        Make sure the backend is running on port 5000
+                    </p>
+                    <button onclick="loadDashboardData()" style="margin-top:20px;padding:10px 20px;background:#4a90e2;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+/* =================================================================
+   MAIN RENDER FUNCTION - UPDATED
    ================================================================= */
 
 function renderDashboard() {
   const main = document.getElementById('main');
-  if (!main) {
-    console.error('Main element not found');
-    return;
-  }
+  if (!main) return;
   
   const totalEmp = state.employees.length;
   const pendingLeave = state.requests.length;
   
-  // Department donut segments
-  const segs = state.departments
+  // Department donut segments - Use departmentStats from backend
+  const segs = state.departmentStats
     .map(d => ({
-      label: d.name,
-      value: state.deptCounts[d.name] || 0,
-      color: d.color
+      label: d.name || d.department,  // Handle both field names
+      value: d.count || d.employeeCount || 0,
+      color: '#3b82f6'
     }))
     .filter(s => s.value > 0)
     .sort((a, b) => b.value - a.value);
   
-  const legend = segs.map(s => `
+  // If no department stats, use departments from state
+  const finalSegs = segs.length > 0 ? segs : state.departments
+    .map(d => ({
+      label: d.name,
+      value: state.deptCounts[d.name] || 0,
+      color: '#3b82f6'
+    }))
+    .filter(s => s.value > 0)
+    .sort((a, b) => b.value - a.value);
+  
+  const legend = finalSegs.map(s => `
     <div class="lg">
       <span class="sw" style="background:${s.color}"></span>
       ${s.label}
@@ -555,38 +606,41 @@ function renderDashboard() {
   
   // Attendance review
   const onLeave = state.statusCounts["On Leave"] || 0;
-  const remote = state.statusCounts["Remote"] || 0;
+  const active = state.statusCounts["Active"] || 0;
   const absent = Math.round(totalEmp * 0.03);
-  const present = Math.max(0, totalEmp - remote - onLeave - absent);
+  const present = Math.max(0, active - onLeave);
   
   const attRows = [
     ["Present (on-site)", present, "#1d4ed8"],
-    ["Remote", remote, "#0ea5e9"],
     ["On leave", onLeave, "#f59e0b"],
     ["Absent", absent, "#ef4444"]
   ].map(([label, value, color]) => `
     <div class="att-row">
       <span class="al">${label}</span>
       <span class="track">
-        <span class="fill" style="width:${(value/totalEmp*100).toFixed(1)}%;background:${color}"></span>
+        <span class="fill" style="width:${totalEmp > 0 ? (value/totalEmp*100).toFixed(1) : 0}%;background:${color}"></span>
       </span>
-      <span class="av">${value} · ${(value/totalEmp*100).toFixed(0)}%</span>
+      <span class="av">${value} · ${totalEmp > 0 ? (value/totalEmp*100).toFixed(0) : 0}%</span>
     </div>
   `).join("");
   
-  // Pending approvals
-  const approvals = state.requests.slice(0, 4).map(r => `
+  // Pending approvals - handle different field names
+  const approvals = state.requests.slice(0, 4).map(r => {
+    const name = r.name || r.first_name + ' ' + r.last_name || r.employee || 'Unknown';
+    const reason = r.type || r.reason || 'Leave request';
+    const id = r._id || r.id;
+    return `
     <div class="req">
       <div class="who">
-        <b>${r.name}</b>
-        <span style="color:var(--muted)">· ${r.type}</span>
+        <b>${name}</b>
+        <span style="color:var(--muted)">· ${reason}</span>
       </div>
       <div class="row-actions">
-        <button class="btn sm" data-action="approve" data-id="${r.id}">Approve</button>
-        <button class="btn sm red" data-action="deny" data-id="${r.id}">Deny</button>
+        <button class="btn sm" data-action="approve" data-id="${id}">Approve</button>
+        <button class="btn sm red" data-action="deny" data-id="${id}">Deny</button>
       </div>
     </div>
-  `).join("") || `<div class="empty">No requests waiting.</div>`;
+  `}).join("") || `<div class="empty">No requests waiting.</div>`;
   
   // KPI icons
   const KIcon = {
@@ -596,16 +650,6 @@ function renderDashboard() {
     star: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .6-5.3 4.6 1.7 6.8L12 17l-6.1 3.5 1.7-6.8L2.3 9.1l7-.6z"/></svg>'
   };
   
-  /* ================================================================
-   DASHBOARD USER INTERFACE
-   ----------------------------------------------------------------
-   Dynamically generates the main dashboard layout and inserts it
-   into the <main> element using a template literal. The dashboard
-   includes the page header, KPI summary cards, attendance charts,
-   department statistics, attendance review, and pending leave
-   requests.
-   ================================================================ */
-
   main.innerHTML = `
     <div class="page-head">
       <div class="eyebrow">Overview</div>
@@ -618,25 +662,25 @@ function renderDashboard() {
         <div class="kico" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">${KIcon.people}</div>
         <div class="klab">Total Employees</div>
         <div class="kval">${totalEmp}</div>
-        <span class="ktrend up">▲ 4.2% vs last month</span>
+        <span class="ktrend up">▲ Live data</span>
       </div>
       <div class="kpi">
         <div class="kico" style="background:linear-gradient(135deg,#0ea5e9,#0369a1)">${KIcon.money}</div>
         <div class="klab">Monthly Payroll</div>
         <div class="kval">${moneyShort(state.totalMonthlyPayroll)}</div>
-        <span class="ktrend up">▲ 1.8% vs last month</span>
+        <span class="ktrend up">▲ Live data</span>
       </div>
       <div class="kpi">
         <div class="kico" style="background:linear-gradient(135deg,#f59e0b,#d97706)">${KIcon.cal}</div>
         <div class="klab">Pending Leave</div>
         <div class="kval">${pendingLeave}</div>
-        <span class="ktrend down">▼ 2 vs last week</span>
+        <span class="ktrend down">▼ Needs review</span>
       </div>
       <div class="kpi">
         <div class="kico" style="background:linear-gradient(135deg,#6366f1,#4338ca)">${KIcon.star}</div>
         <div class="klab">Avg Performance</div>
         <div class="kval">${state.avgRating}<span style="font-size:16px;color:var(--muted)">/5</span></div>
-        <span class="ktrend up">▲ 0.2 vs last cycle</span>
+        <span class="ktrend up">▲ Live data</span>
       </div>
     </div>
 
@@ -646,11 +690,11 @@ function renderDashboard() {
           <h3>Attendance Overview</h3>
           <span class="hint">Daily present headcount · ${state.attendanceRate}% for the period</span>
         </div>
-        ${barSVG(state.attendance, state.months, {max: totalEmp})}
+        ${barSVG(state.attendance, state.months, {max: totalEmp || 10})}
       </div>
       <div class="panel">
         <div class="panel-title"><h3>Workforce by Department</h3></div>
-        <div style="display:flex;justify-content:center;margin:6px 0 10px">${donutSVG(segs)}</div>
+        <div style="display:flex;justify-content:center;margin:6px 0 10px">${donutSVG(finalSegs)}</div>
         <div class="legend">${legend}</div>
       </div>
     </div>
@@ -676,10 +720,9 @@ function renderDashboard() {
   // Wire quick approval buttons
   document.querySelectorAll('[data-action="approve"], [data-action="deny"]').forEach(btn => {
     btn.onclick = () => {
-      const id = parseInt(btn.dataset.id);
+      const id = btn.dataset.id;
       const approve = btn.dataset.action === 'approve';
       applyLeaveDecision(id, approve);
-      renderDashboard();
     };
   });
   
@@ -689,14 +732,43 @@ function renderDashboard() {
     seeAllBtn.onclick = () => navigate('timeoff');
   }
 }
+  
+  // Wire quick approval buttons
+  document.querySelectorAll('[data-action="approve"], [data-action="deny"]').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.id;
+      const approve = btn.dataset.action === 'approve';
+      applyLeaveDecision(id, approve);
+    };
+  });
+  
+  // Wire "See all" button
+  const seeAllBtn = document.getElementById('dashSeeAll');
+  if (seeAllBtn) {
+    seeAllBtn.onclick = () => navigate('timeoff');
+  }
 
-/* BOOT */
+
+/* =================================================================
+   BOOT
+   ================================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Dashboard initializing...');
-  renderDashboard();
+  
+  // Check authentication
+  const token = getAuthToken();
+  if (!token) {
+    window.location.href = '../index.html';
+    return;
+  }
+  
+  // Load data from backend
+  loadDashboardData();
 });
 
 // Make functions available globally
+window.loadDashboardData = loadDashboardData;
 window.renderDashboard = renderDashboard;
 window.state = state;
+window.applyLeaveDecision = applyLeaveDecision;
