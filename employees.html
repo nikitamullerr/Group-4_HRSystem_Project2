@@ -204,6 +204,60 @@ try {
      EMPLOYEES PAGE SCRIPT
 ================================================== -->
 
+<!-- ==========================================
+     ADD EMPLOYEE MODAL
+     ========================================== -->
+<div class="modal-bg" id="addEmployeeModal">
+    <div class="modal" style="max-width: 500px;">
+        <div class="mhead">
+            <h3>Add New Employee</h3>
+            <button id="closeAddModal" aria-label="Close">&times;</button>
+        </div>
+        <div class="mbody">
+            <form id="addEmployeeForm">
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input type="text" id="addFirstName" class="field" placeholder="Enter first name" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name *</label>
+                    <input type="text" id="addLastName" class="field" placeholder="Enter last name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="addEmail" class="field" placeholder="email@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Department *</label>
+                    <select id="addDepartment" class="select">
+                        <option value="1">Development</option>
+                        <option value="2">HR</option>
+                        <option value="3">QA</option>
+                        <option value="4">Sales</option>
+                        <option value="5">Marketing</option>
+                        <option value="6">Design</option>
+                        <option value="7">IT</option>
+                        <option value="8">Finance</option>
+                        <option value="9">Support</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <input type="text" id="addPosition" class="field" placeholder="Job title">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="addPassword" class="field" placeholder="Min 6 characters" required>
+                </div>
+            </form>
+        </div>
+        <div class="mfoot">
+            <button class="btn ghost" id="cancelAddBtn">Cancel</button>
+            <button class="btn primary" id="saveAddBtn">+ Add Employee</button>
+        </div>
+    </div>
+</div>
+
 <script src="javascript/employees.js"></script>
 
 </body>
