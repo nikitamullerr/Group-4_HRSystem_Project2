@@ -1,9 +1,7 @@
 import db from '../config/db.js';
 import { calculatePayslipFigures, calculateYTD } from '../models/payrollCalculations.js';
 
-// ============================================
 // GET /api/payroll/summary — KPI cards
-// ============================================
 export const getSummary = async (req, res) => {
     try {
         // Get current month payroll from your existing payroll table
@@ -33,9 +31,7 @@ export const getSummary = async (req, res) => {
     }
 };
 
-// ============================================
 // GET /api/payroll/table — searchable payroll table
-// ============================================
 export const getTable = async (req, res) => {
     try {
         const search = req.query.search || '';
@@ -100,9 +96,7 @@ export const getTable = async (req, res) => {
     }
 };
 
-// ============================================
 // POST /api/payroll/run — run payroll
-// ============================================
 export const runPayroll = async (req, res) => {
     const { month, year } = req.body;
     
@@ -162,9 +156,7 @@ export const runPayroll = async (req, res) => {
     }
 };
 
-// ============================================
 // GET /api/payroll/payslip/:id
-// ============================================
 export const getPayslip = async (req, res) => {
     const { id } = req.params;
 
@@ -229,9 +221,7 @@ export const getPayslip = async (req, res) => {
     }
 };
 
-// ============================================
 // GET /api/payroll/ytd/:employeeId
-// ============================================
 export const getYTD = async (req, res) => {
     const { employeeId } = req.params;
     const throughMonth = req.query.throughMonth !== undefined ? Number(req.query.throughMonth) : new Date().getMonth();
@@ -275,9 +265,7 @@ export const getYTD = async (req, res) => {
     }
 };
 
-// ============================================
 // CRUD ENDPOINTS FOR FRONTEND
-// ============================================
 
 // GET - Get all payroll records
 export const getAllPayroll = async (req, res) => {

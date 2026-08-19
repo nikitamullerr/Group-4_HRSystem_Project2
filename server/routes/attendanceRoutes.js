@@ -6,7 +6,7 @@ import {
 } from "../controllers/attendanceController.js";
 import { authenticate } from "../middleware/auth.js";
 
-console.log("✅ attendanceRoutes.js is being processed");
+console.log("attendanceRoutes.js is being processed");
 
 const router = express.Router();
 
@@ -18,5 +18,5 @@ router.get("/", authenticate, getAttendance);
 router.get("/summary", authenticate, getAttendanceSummary);
 router.post("/mark", authenticate, markAttendance);
 
-console.log("✅ Attendance routes defined");
+console.log("Attendance routes defined");
 export default router;

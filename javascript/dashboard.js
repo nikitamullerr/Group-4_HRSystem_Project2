@@ -1,6 +1,4 @@
-/* =================================================================
-   SHELL — Topbar and navigation
-   ================================================================= */
+/* SHELL — Topbar and navigation */
 
 const NAV = [ 
   {id:"dashboard", label:"Dashboard"},
@@ -11,17 +9,13 @@ const NAV = [
   {id:"performance_review", label:"Performance Reviews"},
 ];
 
-/* =================================================================
-   PAGE URL GENERATOR
-   ================================================================= */
+/* PAGE URL GENERATOR */
 
 function pageUrl(id) {
    return id + ".html";
 }
 
-/* =================================================================
-   TOPBAR HTML GENERATOR
-   ================================================================= */
+/* TOPBAR HTML GENERATOR */
 
 function topbarHTML(active) {
   const logo = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V9l6-4 6 4v12M10 21v-5h4v5"/></svg>';
@@ -77,20 +71,20 @@ function createMobileNav() {
 
 const mobileNav = createMobileNav();
 
-// ---- Toggle mobile nav ----
+//  Toggle mobile nav 
 document.getElementById('hamburgerBtn')?.addEventListener('click', (e) => {
   e.stopPropagation();
   mobileNav.classList.toggle('open');
 });
 
-// ---- Close mobile nav when clicking outside ----
+//  Close mobile nav when clicking outside 
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.hamburger-btn') && !e.target.closest('.mobile-nav')) {
     mobileNav.classList.remove('open');
   }
 });
 
-// ---- Close mobile nav on scroll ----
+//  Close mobile nav on scroll 
 let scrollTimeout;
 window.addEventListener('scroll', () => {
   clearTimeout(scrollTimeout);
@@ -99,9 +93,7 @@ window.addEventListener('scroll', () => {
   }, 100);
 });
 
-/* =================================================================
-   THEME MANAGEMENT
-   ================================================================= */
+/* THEME MANAGEMENT */
 
 const THEME_KEY = "mt-theme";
 
@@ -134,9 +126,7 @@ document.getElementById("themeBtn")?.addEventListener("click", () => {
   applyTheme(currentTheme() === "dark" ? "light" : "dark");
 });
 
-/* =================================================================
-   PROFILE MENU
-   ================================================================= */
+/* PROFILE MENU */
 
 document.getElementById("profileBtn")?.addEventListener("click", e => {
   e.stopPropagation();
@@ -150,9 +140,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", () => {
 });
 document.addEventListener("click", () => { document.getElementById("profileMenu")?.classList.remove("show"); });
 
-/* =================================================================
-   API INTEGRATION - MATCHING YOUR BACKEND ROUTES
-   ================================================================= */
+/* API INTEGRATION - MATCHING YOUR BACKEND ROUTES */
 
 const API_BASE_URL = 'https://moderntech-hr-backend.onrender.com';
 
@@ -239,9 +227,7 @@ const api = {
         return response.json();
     },
     
-    // ========================================
     // TIME OFF ROUTES - MATCHING YOUR BACKEND
-    // ========================================
     
     // Get pending leaves - GET /api/timeoff/pending
     getLeaveRequests: async () => {
@@ -313,9 +299,7 @@ const api = {
     }
 };
 
-/* =================================================================
-   UPDATE USER INFO IN TOPBAR
-   ================================================================= */
+/* UPDATE USER INFO IN TOPBAR */
 
 // Update the topbar with actual user info
 function updateUserInfo() {
@@ -334,9 +318,7 @@ function updateUserInfo() {
 // Call this after topbar is injected
 setTimeout(updateUserInfo, 100);
 
-/* =================================================================
-   STATE
-   ================================================================= */
+/* STATE */
 
 let state = {
     employees: [],
@@ -351,9 +333,7 @@ let state = {
     requests: []
 };
 
-/* =================================================================
-   UI HELPERS
-   ================================================================= */
+/* UI HELPERS */
 
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -381,9 +361,7 @@ function moneyShort(n) {
   return "R" + n;
 }
 
-/* =================================================================
-   SVG CHART HELPERS
-   ================================================================= */
+/* SVG CHART HELPERS */
 
 function barSVG(values, labels, opts = {}) {
   const w = opts.w || 560;
@@ -457,19 +435,17 @@ function donutSVG(segments, size = 190, stroke = 26) {
   </svg>`;
 }
 
-/* =================================================================
-   LEAVE REQUEST FUNCTIONS - UPDATED FOR YOUR BACKEND
-   ================================================================= */
+/* LEAVE REQUEST FUNCTIONS - UPDATED FOR YOUR BACKEND */
 
 async function applyLeaveDecision(id, approve) {
     try {
         let result;
         if (approve) {
             result = await api.approveLeave(id);
-            toast(`✅ Leave request approved`);
+            toast(` Leave request approved`);
         } else {
             result = await api.denyLeave(id);
-            toast(`❌ Leave request denied`);
+            toast(` Leave request denied`);
         }
         console.log('Leave update result:', result);
         await loadDashboardData();
@@ -479,9 +455,7 @@ async function applyLeaveDecision(id, approve) {
     }
 }
 
-/* =================================================================
-   LOAD DATA FROM BACKEND - UPDATED
-   ================================================================= */
+/* LOAD DATA FROM BACKEND - UPDATED */
 
 async function loadDashboardData() {
     try {
@@ -490,7 +464,7 @@ async function loadDashboardData() {
         if (main) {
             main.innerHTML = `
                 <div style="text-align:center;padding:60px 20px;">
-                    <div style="font-size:48px;margin-bottom:20px;">⏳</div>
+                    <div style="font-size:48px;margin-bottom:20px;"> </div>
                     <h3>Loading Dashboard...</h3>
                     <p style="color:var(--muted);">Fetching latest data</p>
                 </div>
@@ -550,7 +524,7 @@ async function loadDashboardData() {
         if (main) {
             main.innerHTML = `
                 <div style="text-align:center;padding:60px 20px;">
-                    <div style="font-size:48px;margin-bottom:20px;">⚠️</div>
+                    <div style="font-size:48px;margin-bottom:20px;"></div>
                     <h3>Error Loading Dashboard</h3>
                     <p style="color:var(--muted);">${error.message}</p>
                     <p style="color:var(--muted);font-size:14px;margin-top:10px;">
@@ -565,9 +539,7 @@ async function loadDashboardData() {
     }
 }
 
-/* =================================================================
-   MAIN RENDER FUNCTION - UPDATED
-   ================================================================= */
+/* MAIN RENDER FUNCTION */
 
 function renderDashboard() {
   const main = document.getElementById('main');
@@ -749,9 +721,7 @@ function renderDashboard() {
   }
 
 
-/* =================================================================
-   BOOT
-   ================================================================= */
+/* BOOT */
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Dashboard initializing...');

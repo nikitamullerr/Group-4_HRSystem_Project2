@@ -1,10 +1,8 @@
 console.log("Employees JS Loaded");
 
-/* ==================================================
-   NAVIGATION
+/* NAVIGATION
    Creates and manages the main navigation bar
-   used throughout the HR system.
-================================================== */
+   used throughout the HR system. */
 
 const NAV = [
     { id: "dashboard", label: "Dashboard" },
@@ -20,9 +18,7 @@ function pageUrl(id) {
     return `${id}.html`;
 }
 
-/* ==================================================
-   SVG ICONS
-================================================== */
+/* SVG ICONS */
 
 function buildingIcon() {
     return `
@@ -95,10 +91,8 @@ function menuIcon() {
     `;
 }
 
-/* ==================================================
-   TOPBAR
-   Generates the page navigation bar.
-================================================== */
+/* TOPBAR
+   Generates the page navigation bar. */
 
 function topbarHTML(active) {
 
@@ -144,10 +138,8 @@ if (topbar) {
     topbar.innerHTML = topbarHTML(activePage);
 }
 
-/* ==================================================
-   MOBILE NAVIGATION
-   Creates and controls the mobile menu.
-================================================== */
+/* MOBILE NAVIGATION
+   Creates and controls the mobile menu. */
 
 function createMobileNav() {
 
@@ -187,9 +179,7 @@ document.addEventListener("click", e => {
     }
 });
 
-/* ==================================================
-   THEME MANAGEMENT
-================================================== */
+/* THEME MANAGEMENT */
 
 const THEME_KEY = "mt-theme";
 
@@ -215,35 +205,27 @@ function applyTheme(theme) {
     updateThemeIcon(theme);
 }
 
-/* ==================================================
-   API CONFIGURATION
-   Uses the running Node.js/Express backend.
-================================================== */
+/* API CONFIGURATION
+   Uses the running Node.js/Express backend. */
 
 const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
 const API_URL = `${API_BASE_URL}/api/employees`;
 
-/* ==================================================
-   API EMPLOYEE DATA
+/* API EMPLOYEE DATA
    Employees are now loaded from the Node.js backend
-   instead of using hard-coded frontend data.
-================================================== */
+   instead of using hard-coded frontend data. */
 
 let employees = [];
 let currentEmployeeId = null;
 
-/* ==================================================
-   GET AUTH TOKEN
-   The login token is stored in localStorage.
-================================================== */
+/* GET AUTH TOKEN
+   The login token is stored in localStorage. */
 
 function getAuthToken() {
     return localStorage.getItem("token");
 }
 
-/* ==================================================
-   TOAST NOTIFICATION
-================================================== */
+/* TOAST NOTIFICATION */
 
 function toast(msg) {
     let t = document.getElementById('toast');
@@ -260,11 +242,9 @@ function toast(msg) {
     t._t = setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 
-/* ==================================================
-   LOAD EMPLOYEES FROM BACKEND
+/*  LOAD EMPLOYEES FROM BACKEND
    Retrieves employee records from MySQL through
-   the Express API.
-================================================== */
+   the Express API. */
 
 async function loadEmployees() {
 
@@ -312,10 +292,8 @@ async function loadEmployees() {
 
 }
 
-/* ==================================================
-   PAGE RENDERING
-   Generates the Employees page inside #main.
-================================================== */
+/* PAGE RENDERING
+   Generates the Employees page inside #main. */
 
 function renderEmployeesPage() {
 
@@ -394,17 +372,13 @@ function renderEmployeesPage() {
 
 }
 
-/* ==================================================
-   HELPERS
-================================================== */
+/* HELPERS */
 
 function getInitials(name) {
     return name.split(" ").map(word => word[0]).join("").toUpperCase();
 }
 
-/* ==================================================
-   KPI STATISTICS
-================================================== */
+/* KPI STATISTICS */
 
 function updateStatistics() {
 
@@ -426,9 +400,7 @@ function updateStatistics() {
 
 }
 
-/* ==================================================
-   DEPARTMENT FILTER
-================================================== */
+/* DEPARTMENT FILTER */
 
 function populateDepartments() {
 
@@ -449,9 +421,7 @@ function populateDepartments() {
 
 }
 
-/* ==================================================
-   EMPLOYEE TABLE RENDERING
-================================================== */
+/* EMPLOYEE TABLE RENDERING */
 
 function renderEmployees(employeeList) {
 
@@ -502,11 +472,9 @@ function renderEmployees(employeeList) {
 
 }
 
-/* ==================================================
-   VIEW EMPLOYEE
+/* VIEW EMPLOYEE
    Displays employee information retrieved from
-   the backend API.
-================================================== */
+   the backend API. */
 
 function viewEmployee(id) {
 
@@ -529,10 +497,8 @@ function viewEmployee(id) {
 
 }
 
-/* ==================================================
-   EDIT EMPLOYEE
-   Loads an employee into the existing edit modal.
-================================================== */
+/* EDIT EMPLOYEE
+   Loads an employee into the existing edit modal. */
 
 async function editEmployee(id) {
 
@@ -579,11 +545,9 @@ async function editEmployee(id) {
 
 }
 
-/* ==================================================
-   SAVE EMPLOYEE CHANGES
+/* SAVE EMPLOYEE CHANGES
    Sends the edited employee to the Node.js backend
-   using the PUT endpoint.
-================================================== */
+   using the PUT endpoint. */
 
 async function saveEmployeeChanges() {
 
@@ -600,10 +564,8 @@ async function saveEmployeeChanges() {
     const email = document.getElementById("editContact").value.trim();
     const departmentName = document.getElementById("editDepartment").value.trim();
 
-    /* ==================================================
-       NAME VALIDATION
-       The backend requires first_name and last_name.
-    ================================================== */
+    /* NAME VALIDATION
+       The backend requires first_name and last_name. */
 
     const nameParts = fullName.split(/\s+/);
 
@@ -615,11 +577,9 @@ async function saveEmployeeChanges() {
         return;
     }
 
-    /* ==================================================
-       DEPARTMENT LOOKUP
+    /* DEPARTMENT LOOKUP
        The backend requires department_id, while the
-       frontend currently displays the department name.
-    ================================================== */
+       frontend currently displays the department name. */
 
     const existingEmployee = employees.find(employee => employee.employeeId === currentEmployeeId);
 
@@ -650,9 +610,7 @@ async function saveEmployeeChanges() {
         return;
     }
 
-    /* ==================================================
-       SEND PUT REQUEST
-    ================================================== */
+    /* SEND PUT REQUEST */
 
     try {
 
@@ -679,7 +637,7 @@ async function saveEmployeeChanges() {
         }
 
         console.log("Employee updated successfully:", data);
-        toast("✅ Employee updated successfully");
+        toast(" Employee updated successfully");
 
         document.getElementById("editModal").classList.remove("show");
 
@@ -693,9 +651,7 @@ async function saveEmployeeChanges() {
 
 }
 
-/* ==================================================
-   DELETE EMPLOYEE
-================================================== */
+/* DELETE  */
 
 async function deleteEmployee(id) {
 
@@ -707,12 +663,12 @@ async function deleteEmployee(id) {
 
     // Prevent deleting the admin user
     if (employee.email === 'admin@moderntech.com') {
-        toast('❌ Cannot delete the admin user');
+        toast(' Cannot delete the admin user');
         return;
     }
 
     const confirmDelete = confirm(
-        `⚠️ Are you sure you want to delete ${employee.name}?\n\nThis action cannot be undone.`
+        `Are you sure you want to delete ${employee.name}?\n\nThis action cannot be undone.`
     );
 
     if (!confirmDelete) {
@@ -736,7 +692,7 @@ async function deleteEmployee(id) {
         const data = await response.json();
 
         if (response.ok) {
-            toast(`✅ ${employee.name} deleted successfully`);
+            toast(` ${employee.name} deleted successfully`);
             await loadEmployees();
         } else {
             toast('Error: ' + (data.error || 'Failed to delete employee'));
@@ -750,9 +706,7 @@ async function deleteEmployee(id) {
 
 window.deleteEmployee = deleteEmployee;
 
-/* ==================================================
-   ADD EMPLOYEE
-================================================== */
+/* ADD EMPLOYEE */
 
 // Open the add modal
 document.addEventListener('click', function(e) {
@@ -828,7 +782,7 @@ document.getElementById('saveAddBtn')?.addEventListener('click', async function(
         const data = await response.json();
 
         if (response.ok) {
-            toast(`✅ ${firstName} ${lastName} added successfully!`);
+            toast(` ${firstName} ${lastName} added successfully!`);
             document.getElementById('addEmployeeModal').classList.remove('show');
             
             // Clear form
@@ -860,9 +814,7 @@ document.getElementById('addPassword')?.addEventListener('keydown', function(e) 
     }
 });
 
-/* ==================================================
-   SEARCH AND FILTERING
-================================================== */
+/* SEARCH AND FILTERING */
 
 function applyFilters() {
 
@@ -889,9 +841,7 @@ function applyFilters() {
 
 }
 
-/* ==================================================
-   MODAL EVENTS
-================================================== */
+/* MODAL EVENTS */
 
 function initialiseModalEvents() {
 
@@ -917,9 +867,7 @@ function initialiseModalEvents() {
 
 }
 
-/* ==================================================
-   FILTER EVENTS
-================================================== */
+/* FILTER EVENTS */
 
 function initialiseFilterEvents() {
 
@@ -936,9 +884,7 @@ function initialiseFilterEvents() {
 
 }
 
-/* ==================================================
-   THEME BUTTON
-================================================== */
+/* THEME BUTTON */
 
 function initialiseThemeButton() {
 
@@ -956,11 +902,9 @@ function initialiseThemeButton() {
 
 }
 
-/* ==================================================
-   INITIALISATION
+/* INITIALISATION
    Builds the page and then loads employee records
-   from the Node.js backend.
-================================================== */
+   from the Node.js backend. */
 
 document.addEventListener("DOMContentLoaded", async function () {
 

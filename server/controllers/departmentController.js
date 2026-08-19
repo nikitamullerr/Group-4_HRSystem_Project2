@@ -1,8 +1,6 @@
 import db from '../config/db.js';
 
-// ============================================
 // GET - Get all departments with employee counts
-// ============================================
 export const getAllDepartments = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -22,9 +20,7 @@ export const getAllDepartments = async (req, res) => {
     }
 };
 
-// ============================================
 // GET - Get single department by ID
-// ============================================
 export const getDepartmentById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -50,9 +46,7 @@ export const getDepartmentById = async (req, res) => {
     }
 };
 
-// ============================================
 // POST - Create new department
-// ============================================
 export const createDepartment = async (req, res) => {
     try {
         const { name } = req.body;
@@ -91,9 +85,7 @@ export const createDepartment = async (req, res) => {
     }
 };
 
-// ============================================
 // PUT - Update department
-// ============================================
 export const updateDepartment = async (req, res) => {
     try {
         const { id } = req.params;
@@ -143,9 +135,7 @@ export const updateDepartment = async (req, res) => {
     }
 };
 
-// ============================================
 // DELETE - Delete department
-// ============================================
 export const deleteDepartment = async (req, res) => {
     try {
         const { id } = req.params;

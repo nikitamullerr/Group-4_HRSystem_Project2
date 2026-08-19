@@ -1,9 +1,7 @@
 console.log("Performance Review JS Loaded");
 
-/* ==================================================
-   NAVIGATION
-   Creates and manages the main navigation bar.
-================================================== */
+/* NAVIGATION
+   Creates and manages the main navigation bar. */
 
 const NAV = [
     { id: "dashboard", label: "Dashboard" },
@@ -14,9 +12,7 @@ const NAV = [
     { id: "performance_review", label: "Performance Reviews" }
 ];
 
-/* ==================================================
-   PAGE HELPERS
-================================================== */
+/* PAGE HELPERS */
 
 function pageUrl(id) {
     return `${id}.html`;
@@ -24,9 +20,7 @@ function pageUrl(id) {
 
 const activePage = document.body.dataset.page || "performance_review";
 
-/* ==================================================
-   ICONS
-================================================== */
+/* ICONS */
 
 function buildingIcon() {
     return `
@@ -72,9 +66,7 @@ function menuIcon() {
     `;
 }
 
-/* ==================================================
-   TOPBAR
-================================================== */
+/* TOPBAR */
 
 function topbarHTML(active) {
     const links = NAV.map(item => `
@@ -106,9 +98,7 @@ if (topbar) {
     topbar.innerHTML = topbarHTML(activePage);
 }
 
-/* ==================================================
-   MOBILE NAVIGATION
-================================================== */
+/* MOBILE NAVIGATION */
 
 function createMobileNav() {
     const nav = document.createElement("div");
@@ -139,9 +129,7 @@ document.addEventListener("click", e => {
     }
 });
 
-/* ==================================================
-   THEME MANAGEMENT
-================================================== */
+/* THEME MANAGEMENT */
 
 const THEME_KEY = "mt-theme";
 
@@ -167,25 +155,19 @@ function applyTheme(theme) {
     updateThemeIcon(theme);
 }
 
-/* ==================================================
-   API CONFIGURATION - PRODUCTION URL
-   ================================================== */
+/* API CONFIGURATION - PRODUCTION URL */
 
 const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
 const API_URL = `${API_BASE_URL}/api/performance-reviews`;
 
-/* ==================================================
-   PERFORMANCE REVIEW DATA
-   Reviews are now loaded from the backend database.
-================================================== */
+/* PERFORMANCE REVIEW DATA
+   Reviews are now loaded from the backend database. */
 
 let reviews = [];
 let currentReviewId = null;
 let currentStatusFilter = "All";
 
-/* ==================================================
-   FETCH EMPLOYEES FOR DEPARTMENT NAMES
-================================================== */
+/* FETCH EMPLOYEES FOR DEPARTMENT NAMES */
 
 async function fetchEmployees() {
     const token = localStorage.getItem("token");
@@ -211,10 +193,8 @@ async function fetchEmployees() {
     }
 }
 
-/* ==================================================
-   LOAD PERFORMANCE REVIEWS
-   Fetches performance reviews from the backend API.
-================================================== */
+/* LOAD PERFORMANCE REVIEWS
+   Fetches performance reviews from the backend API. */
 
 async function loadReviews() {
     const token = localStorage.getItem("token");
@@ -247,11 +227,11 @@ async function loadReviews() {
         }
 
         const data = await response.json();
-        console.log("📋 Performance reviews loaded:", data.length, "records");
+        console.log("Performance reviews loaded:", data.length, "records");
 
         // 2. Fetch employees for department names
         const employeeMap = await fetchEmployees();
-        console.log("📋 Employees loaded:", Object.keys(employeeMap).length, "records");
+        console.log("Employees loaded:", Object.keys(employeeMap).length, "records");
 
         // 3. Convert database records into the frontend structure
         reviews = data.map(review => {
@@ -289,7 +269,7 @@ async function loadReviews() {
         // 6. Render the reviews
         renderReviews(reviews);
 
-        console.log("✅ Performance reviews loaded successfully:", reviews.length);
+        console.log("Performance reviews loaded successfully:", reviews.length);
 
     } catch (error) {
         console.error("Error loading performance reviews:", error);
@@ -302,10 +282,8 @@ async function loadReviews() {
     }
 }
 
-/* ==================================================
-   PAGE RENDERING
-   Generates the entire page inside #main
-================================================== */
+/* PAGE RENDERING
+   Generates the entire page inside #main */
 
 function renderPerformanceReviewPage() {
     const main = document.getElementById("main");
@@ -392,9 +370,7 @@ function renderPerformanceReviewPage() {
     `;
 }
 
-/* ==================================================
-   HELPERS
-================================================== */
+/* HELPERS */
 
 function getInitials(name) {
     if (!name || name === "N/A") return "?";
@@ -406,9 +382,7 @@ function getInitials(name) {
         .slice(0, 2);
 }
 
-/* ==================================================
-   KPI STATISTICS
-================================================== */
+/* KPI STATISTICS */
 
 function updateStatistics() {
     const totalReviews = document.getElementById("totalReviews");
@@ -430,9 +404,7 @@ function updateStatistics() {
     needsImprovement.textContent = reviews.filter(review => review.rating <= 3).length;
 }
 
-/* ==================================================
-   DEPARTMENT FILTER
-================================================== */
+/* DEPARTMENT FILTER */
 
 function populateDepartments() {
     const departmentFilter = document.getElementById("departmentFilter");
@@ -449,9 +421,7 @@ function populateDepartments() {
     });
 }
 
-/* ==================================================
-   REVIEW TABLE RENDERING
-================================================== */
+/* REVIEW TABLE RENDERING */
 
 function renderReviews(reviewList) {
     const reviewContainer = document.getElementById("reviewContainer");
@@ -485,10 +455,6 @@ function renderReviews(reviewList) {
     `).join("");
 }
 
-/* ==================================================
-   VIEW REVIEW
-================================================== */
-
 function viewReview(id) {
     const review = reviews.find(item => item.id === id);
     if (!review) return;
@@ -510,10 +476,6 @@ function viewReview(id) {
 
 window.viewReview = viewReview;
 
-/* ==================================================
-   EDIT REVIEW
-================================================== */
-
 function editReview(id) {
     const review = reviews.find(item => item.id === id);
     if (!review) return;
@@ -530,10 +492,6 @@ function editReview(id) {
 }
 
 window.editReview = editReview;
-
-/* ==================================================
-   SAVE REVIEW CHANGES
-================================================== */
 
 function saveReviewChanges() {
     const review = reviews.find(item => item.id === currentReviewId);
@@ -552,9 +510,7 @@ function saveReviewChanges() {
 
 window.saveReviewChanges = saveReviewChanges;
 
-/* ==================================================
-   FILTERING
-================================================== */
+/* FILTERING */
 
 function applyFilters() {
     const searchInput = document.getElementById("searchInput");
@@ -581,9 +537,7 @@ function applyFilters() {
     renderReviews(filteredReviews);
 }
 
-/* ==================================================
-   TAB EVENTS
-================================================== */
+/* TAB EVENTS */
 
 function initialiseTabs() {
     const tabs = document.querySelectorAll(".tab");
@@ -597,9 +551,7 @@ function initialiseTabs() {
     });
 }
 
-/* ==================================================
-   FILTER EVENTS
-================================================== */
+/* FILTER EVENTS */
 
 function initialiseFilterEvents() {
     const searchInput = document.getElementById("searchInput");
@@ -611,9 +563,7 @@ function initialiseFilterEvents() {
     if (ratingFilter) ratingFilter.addEventListener("change", applyFilters);
 }
 
-/* ==================================================
-   MODAL EVENTS
-================================================== */
+/* MODAL EVENTS */
 
 function initialiseModalEvents() {
     const closeModal = document.getElementById("closeModal");
@@ -637,9 +587,7 @@ function initialiseModalEvents() {
     }
 }
 
-/* ==================================================
-   THEME BUTTON
-================================================== */
+/* THEME BUTTON */
 
 function initialiseThemeButton() {
     const themeBtn = document.getElementById("themeBtn");
@@ -649,9 +597,7 @@ function initialiseThemeButton() {
     });
 }
 
-/* ==================================================
-   PROFILE MENU
-================================================== */
+/* PROFILE MENU */
 
 function initialiseProfileMenu() {
     const profileBtn = document.getElementById("profileBtn");
@@ -678,9 +624,7 @@ function initialiseProfileMenu() {
     }
 }
 
-/* ==================================================
-   APPLICATION STARTUP
-================================================== */
+/* APPLICATION STARTUP */
 
 document.addEventListener("DOMContentLoaded", async () => {
     renderPerformanceReviewPage();
@@ -691,5 +635,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     initialiseThemeButton();
     initialiseProfileMenu();
     applyTheme(currentTheme());
-    console.log("✅ Performance Reviews page initialised successfully.");
+    console.log("Performance Reviews page initialised successfully.");
 });

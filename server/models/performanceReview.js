@@ -1,9 +1,7 @@
 import pool from '../config/db.js';
 
-// ==================================================
 // PERFORMANCE REVIEWS MODEL
 // Handles all database operations for performance reviews.
-// ==================================================
 
 // Get all performance reviews
 export const findAll = async () => {

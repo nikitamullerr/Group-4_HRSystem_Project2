@@ -18,9 +18,7 @@ function pageUrl(id) {
   return id + ".html";
 }
 
-/* ==================================================
-   API CONFIGURATION - PRODUCTION URL
-   ================================================== */
+/* API CONFIGURATION - PRODUCTION URL */
 const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
 
 /* Top bar HTML generation */
@@ -262,7 +260,7 @@ function buildState() {
 
 // FALLBACK FUNCTION - Used when /api/employees is not available
 function getFallbackEmployeeData(attendanceData) {
-  console.log('📋 Using fallback employee data (hardcoded departments)');
+  console.log('Using fallback employee data (hardcoded departments)');
   
   const departmentMap = {
     1: 'Development',
@@ -312,20 +310,20 @@ async function loadData() {
     }
 
     const attendanceData = await attRes.json();
-    console.log('📋 Attendance data loaded:', attendanceData.length, 'records');
+    console.log('Attendance data loaded:', attendanceData.length, 'records');
 
     // 2. Try to fetch employee data with fallback
     let EMP_META = {};
 
     try {
-      console.log('🔄 Attempting to fetch employees from /api/employees...');
+      console.log('Attempting to fetch employees from /api/employees...');
       const empRes = await fetch(`${API_BASE_URL}/api/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (empRes.ok) {
         const employeesData = await empRes.json();
-        console.log('✅ Employee data loaded from API:', employeesData.length, 'records');
+        console.log('Employee data loaded from API:', employeesData.length, 'records');
         
         employeesData.forEach(emp => {
           EMP_META[emp.id] = {
@@ -334,11 +332,11 @@ async function loadData() {
           };
         });
       } else {
-        console.warn('⚠️ /api/employees returned', empRes.status, '- using fallback data');
+        console.warn('/api/employees returned', empRes.status, '- using fallback data');
         EMP_META = getFallbackEmployeeData(attendanceData);
       }
     } catch (empError) {
-      console.warn('⚠️ Failed to fetch /api/employees, using fallback:', empError.message);
+      console.warn('Failed to fetch /api/employees, using fallback:', empError.message);
       EMP_META = getFallbackEmployeeData(attendanceData);
     }
 
@@ -350,7 +348,7 @@ async function loadData() {
     let leaveData = [];
     if (leaveRes.ok) {
       leaveData = await leaveRes.json();
-      console.log('📋 Pending leave data loaded:', leaveData.length, 'requests');
+      console.log('Pending leave data loaded:', leaveData.length, 'requests');
     }
 
     // 4. Transform attendance data
@@ -389,7 +387,7 @@ async function loadData() {
 
     // 6. Store in global variables
     ATTENDANCE_LEAVE = Object.values(employeeMap);
-    console.log('📊 Total employees processed:', ATTENDANCE_LEAVE.length);
+    console.log('Total employees processed:', ATTENDANCE_LEAVE.length);
 
     // 7. Build EMP_META
     EMP_META = {};
@@ -414,7 +412,7 @@ async function loadData() {
     return true;
 
   } catch (err) {
-    console.error('❌ Error loading data:', err);
+    console.error('Error loading data:', err);
     const main = document.getElementById("main");
     if (main) {
       main.innerHTML =

@@ -2,28 +2,22 @@ import db from '../config/db.js';
 
 export const getDashboardSummary = async (req, res) => {
     try {
-        // ============================================
         // TOTAL EMPLOYEES
-        // ============================================
 
         const [employeeRows] = await db.query(`
             SELECT COUNT(*) AS totalEmployees
             FROM employees
         `);
 
-        // ============================================
         // TOTAL DEPARTMENTS
-        // ============================================
 
         const [deptRows] = await db.query(`
             SELECT COUNT(*) AS totalDepartments
             FROM departments
         `);
 
-        // ============================================
         // MONTHLY PAYROLL
         // July 2025
-        // ============================================
 
         const [payrollRows] = await db.query(`
             SELECT COALESCE(SUM(net_pay), 0) AS monthlyPayroll
@@ -32,9 +26,7 @@ export const getDashboardSummary = async (req, res) => {
             AND YEAR(month) = 2025
         `);
 
-        // ============================================
         // PENDING LEAVE REQUESTS
-        // ============================================
 
         const [leaveRows] = await db.query(`
             SELECT COUNT(*) AS pendingLeave
@@ -42,18 +34,14 @@ export const getDashboardSummary = async (req, res) => {
             WHERE status = 'Pending'
         `);
 
-        // ============================================
         // AVERAGE PERFORMANCE RATING
-        // ============================================
 
         const [ratingRows] = await db.query(`
             SELECT COALESCE(AVG(rating), 0) AS averageRating
             FROM performance_reviews
         `);
 
-        // ============================================
         // ATTENDANCE BY DAY
-        // ============================================
 
         const [attendanceRows] = await db.query(`
             SELECT
@@ -99,9 +87,7 @@ export const getDashboardSummary = async (req, res) => {
             ORDER BY DATE(date) ASC
         `);
 
-        // ============================================
         // OVERALL ATTENDANCE STATISTICS
-        // ============================================
 
         const [attendanceStats] = await db.query(`
             SELECT
@@ -118,9 +104,7 @@ export const getDashboardSummary = async (req, res) => {
             WHERE YEAR(date) = 2025
         `);
 
-        // ============================================
         // EMPLOYEES BY DEPARTMENT
-        // ============================================
 
         const [departmentRows] = await db.query(`
             SELECT
@@ -136,10 +120,7 @@ export const getDashboardSummary = async (req, res) => {
 
             ORDER BY count DESC
         `);
-
-        // ============================================
         // FORMAT ATTENDANCE DATA
-        // ============================================
 
         let dayLabels = [];
         let dailyPresent = [];
@@ -190,9 +171,7 @@ export const getDashboardSummary = async (req, res) => {
             attendanceRate = 85;
         }
 
-        // ============================================
         // GET FINAL VALUES
-        // ============================================
 
         const totalMonthlyPayroll =
             Number(payrollRows[0]?.monthlyPayroll) || 0;
@@ -212,9 +191,7 @@ export const getDashboardSummary = async (req, res) => {
         const departmentStats =
             departmentRows || [];
 
-        // ============================================
         // SEND RESPONSE
-        // ============================================
 
         res.json({
             totalEmployees,

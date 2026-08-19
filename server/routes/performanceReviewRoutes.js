@@ -11,10 +11,8 @@ import {
 
 const router = express.Router();
 
-// ==================================================
 // PERFORMANCE REVIEW ROUTES
 // All routes are protected by authentication.
-// ==================================================
 
 router.get('/', authenticate, getAllReviews);
 

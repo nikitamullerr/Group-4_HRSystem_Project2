@@ -14,11 +14,11 @@ router.get('/payslip/:id', authenticate, payrollController.getPayslip);  // Chan
 router.get('/ytd/:employeeId', authenticate, payrollController.getYTD);
 
 // Added CRUD endpoints for frontend
-router.get('/', authenticate, payrollController.getAllPayroll);  // ← ADD THIS
-router.get('/month/:month', authenticate, payrollController.getPayrollByMonth);  // ← ADD THIS
-router.get('/employee/:employeeId', authenticate, payrollController.getPayrollByEmployee);  // ← ADD THIS
-router.post('/', authenticate, payrollController.createPayroll);  // ← ADD THIS
-router.put('/:id', authenticate, payrollController.updatePayroll);  // ← ADD THIS
-router.delete('/:id', authenticate, payrollController.deletePayroll);  // ← ADD THIS
+router.get('/', authenticate, payrollController.getAllPayroll); 
+router.get('/month/:month', authenticate, payrollController.getPayrollByMonth); 
+router.get('/employee/:employeeId', authenticate, payrollController.getPayrollByEmployee); 
+router.post('/', authenticate, payrollController.createPayroll);  
+router.put('/:id', authenticate, payrollController.updatePayroll); 
+router.delete('/:id', authenticate, payrollController.deletePayroll); 
 
 export default router;

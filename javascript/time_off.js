@@ -17,9 +17,7 @@ function pageUrl(id) {
   return id + ".html";
 }
 
-/* ============================================
-   API CONFIGURATION - PRODUCTION URL
-   ============================================ */
+/* API CONFIGURATION - PRODUCTION URL */
 
 const API_BASE_URL = 'https://moderntech-hr-backend.onrender.com';
 
@@ -161,9 +159,7 @@ document.addEventListener("click", function() {
   if (menu) menu.classList.remove("show");
 });
 
-/* ============================================
-   BACKEND API INTEGRATION
-   ============================================ */
+/* BACKEND API INTEGRATION*/
 
 var ATTENDANCE_LEAVE = [];
 var PAYROLL = {};
@@ -188,12 +184,10 @@ function toast(msg) {
   t._t = setTimeout(function() { t.classList.remove("show"); }, 3000);
 }
 
-// ============================================
 // FALLBACK FUNCTION - Used when /api/employees is not available
-// ============================================
 
 function getFallbackEmployeeData(attendanceData) {
-  console.log('📋 Using fallback employee data (hardcoded departments)');
+  console.log('Using fallback employee data (hardcoded departments)');
   
   const departmentMap = {
     1: 'Development',
@@ -221,9 +215,7 @@ function getFallbackEmployeeData(attendanceData) {
   return meta;
 }
 
-// ============================================
 // LOAD DATA FROM BACKEND API
-// ============================================
 
 async function loadData() {
   const token = getToken();
@@ -252,20 +244,20 @@ async function loadData() {
     }
 
     const attendanceData = await attRes.json();
-    console.log('📋 Attendance data:', attendanceData.length, 'records');
+    console.log('Attendance data:', attendanceData.length, 'records');
 
     // 2. Try to fetch employee data (Xabiso's API) with fallback
     let EMP_META = {};
 
     try {
-      console.log('🔄 Attempting to fetch employees from /api/employees...');
+      console.log('Attempting to fetch employees from /api/employees...');
       const empRes = await fetch(`${API_BASE_URL}/api/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (empRes.ok) {
         const employeesData = await empRes.json();
-        console.log('✅ Employee data loaded from API:', employeesData.length, 'records');
+        console.log('Employee data loaded from API:', employeesData.length, 'records');
         
         employeesData.forEach(emp => {
           EMP_META[emp.id] = {
@@ -274,11 +266,11 @@ async function loadData() {
           };
         });
       } else {
-        console.warn('⚠️ /api/employees returned', empRes.status, '- using fallback');
+        console.warn('/api/employees returned', empRes.status, '- using fallback');
         EMP_META = getFallbackEmployeeData(attendanceData);
       }
     } catch (empError) {
-      console.warn('⚠️ Failed to fetch /api/employees, using fallback:', empError.message);
+      console.warn('Failed to fetch /api/employees, using fallback:', empError.message);
       EMP_META = getFallbackEmployeeData(attendanceData);
     }
 
@@ -290,9 +282,9 @@ async function loadData() {
     let leaveData = [];
     if (leaveRes.ok) {
       leaveData = await leaveRes.json();
-      console.log('📋 Pending leave data:', leaveData.length, 'requests');
+      console.log('Pending leave data:', leaveData.length, 'requests');
     } else {
-      console.warn('⚠️ Failed to fetch pending leaves:', leaveRes.status);
+      console.warn('Failed to fetch pending leaves:', leaveRes.status);
     }
 
     // 4. Build employee map from attendance data + EMP_META
@@ -326,17 +318,17 @@ async function loadData() {
           reason: leave.type,
           status: leave.status
         });
-        console.log('✅ Added leave for:', employeeMap[empId].name, leave.type);
+        console.log('Added leave for:', employeeMap[empId].name, leave.type);
       } else {
-        console.warn('⚠️ Employee not found for leave:', empId);
+        console.warn('Employee not found for leave:', empId);
       }
     });
 
     // 6. Store in global variables
     ATTENDANCE_LEAVE = Object.values(employeeMap);
     
-    console.log('📊 Total employees:', ATTENDANCE_LEAVE.length);
-    console.log('📊 Total leave requests:', leaveData.length);
+    console.log('Total employees:', ATTENDANCE_LEAVE.length);
+    console.log('Total leave requests:', leaveData.length);
 
     // 7. Build EMP_META
     EMP_META = {};
@@ -365,9 +357,7 @@ async function loadData() {
   }
 }
 
-// ============================================
 // APPROVE / DENY LEAVE REQUESTS (BACKEND)
-// ============================================
 
 async function approveLeaveOnBackend(id) {
   const token = getToken();
@@ -413,9 +403,7 @@ async function denyLeaveOnBackend(id) {
   }
 }
 
-// ============================================
 // STATIC DEPARTMENT AND LEAVE TYPE MAPPINGS
-// ============================================
 
 var DEPARTMENTS = [
   { name: "Development", color: "#1d4ed8" },
@@ -450,9 +438,7 @@ function parseDate(s) {
   return { y: parts[0], m: parts[1] - 1, d: parts[2] };
 }
 
-// ============================================
 // BUILD EMPLOYEE OBJECTS
-// ============================================
 
 function buildEmployees() {
   if (!ATTENDANCE_LEAVE || ATTENDANCE_LEAVE.length === 0) {
@@ -538,9 +524,7 @@ function initState() {
   });
 }
 
-// ============================================
 // UI HELPERS
-// ============================================
 
 function $(s) { return document.querySelector(s); }
 function $$(s) { return Array.from(document.querySelectorAll(s)); }
@@ -620,9 +604,7 @@ function reqDateLabel(r) {
   return r.endDay ? r.day + '–' + r.endDay + ' ' + m + ' ' + r.year : r.day + ' ' + m + ' ' + r.year;
 }
 
-// ============================================
 // RENDER – Time Off Page
-// ============================================
 
 function renderTimeoff() {
   var main = document.getElementById("main");
@@ -694,7 +676,7 @@ function wirePending() {
       btn.textContent = approve ? 'Approve' : 'Deny';
       
       if (r) {
-        toast((approve ? "✅ Approved" : "❌ Denied") + ": " + r.name + " — " + r.type);
+        toast((approve ? "Approved" : "Denied") + ": " + r.name + " — " + r.type);
         renderTimeoff();
       }
     };

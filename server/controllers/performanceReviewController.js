@@ -6,10 +6,8 @@ import {
     remove
 } from '../models/performanceReview.js';
 
-// ==================================================
 // PERFORMANCE REVIEW CONTROLLERS
 // Handles HTTP requests for performance reviews.
-// ==================================================
 
 // Get all performance reviews
 export const getAllReviews = async (req, res, next) => {
@@ -49,10 +47,8 @@ export const createReview = async (req, res, next) => {
             feedback
         } = req.body;
 
-        // ==================================================
         // VALIDATION
         // Employee, reviewer and rating are required.
-        // ==================================================
         if (!employee_id || !reviewer || !rating) {
             return res.status(400).json({
                 error: 'Employee, reviewer and rating are required'

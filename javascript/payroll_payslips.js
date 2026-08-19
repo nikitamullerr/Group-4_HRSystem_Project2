@@ -1,6 +1,4 @@
-/* ============================================================
-   SHELL — Top bar and navigation (unchanged)
-   ============================================================ */
+/* SHELL — Top bar and navigation */
 const NAV = [
   {id:"dashboard", label:"Dashboard"},
   {id:"employees", label:"Employees"},
@@ -37,7 +35,7 @@ const active = document.body.dataset.page || "dashboard";
 const tb = document.getElementById("topbar");
 if (tb) tb.innerHTML = topbarHTML(active);
 
-// Mobile nav (unchanged)
+// Mobile nav
 function createMobileNav() {
   const nav = document.createElement('div');
   nav.className = 'mobile-nav';
@@ -67,7 +65,7 @@ window.addEventListener('scroll', () => {
   scrollTimeout = setTimeout(() => { mobileNav.classList.remove('open'); }, 100);
 });
 
-// Theme toggle (unchanged)
+// Theme toggle
 const THEME_KEY = "mt-theme";
 function currentTheme() {
   try { return localStorage.getItem(THEME_KEY) || "light"; }
@@ -104,10 +102,7 @@ document.getElementById("logoutBtn")?.addEventListener("click", () => {
 });
 document.addEventListener("click", () => { document.getElementById("profileMenu")?.classList.remove("show"); });
 
-/* ============================================================
-   ----------  ALL STATIC DATA REMOVED  ----------
-   We now use a global state that will be populated by API calls.
-   ============================================================ */
+/* ALL STATIC DATA REMOVED */
 
 // We'll keep the departments list as static (it rarely changes)
 const DEPARTMENTS = [
@@ -136,7 +131,7 @@ let state = {
   payrollEmp: 1
 };
 
-// UI helpers (unchanged)
+// UI helpers
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
@@ -227,27 +222,23 @@ function wirePager(selector, callback) {
   });
 }
 
-/* ============================================================
-   ----------  GET TOKEN HELPER  ----------
-   ============================================================ */
+/* GET TOKEN HELPER */
 
 function getToken() {
   return localStorage.getItem("token") || localStorage.getItem("mt-auth") || null;
 }
 
-/* ============================================================
-   ----------  API CALLS (with authentication)  ----------
-   All data now comes from the backend via fetch.
-   ============================================================ */
+/* API CALLS (with authentication) 
+   All data now comes from the backend via fetch. */
 
 const API_BASE_URL = 'https://moderntech-hr-backend.onrender.com';
 
 // Fetch employees and update state
 async function fetchEmployees() {
-  console.log('🔍 Fetching employees...');
+  console.log('Fetching employees...');
   const token = getToken();
   if (!token) {
-    console.error('❌ No token found, redirecting to login');
+    console.error('No token found, redirecting to login');
     toast('Please login again');
     setTimeout(() => { window.location.href = '../index.html'; }, 1500);
     return;
@@ -268,7 +259,7 @@ async function fetchEmployees() {
       throw new Error(`Failed to fetch employees: ${res.status}`);
     }
     const data = await res.json();
-    console.log('✅ Employees loaded:', data.length);
+    console.log('Employees loaded:', data.length);
     
     state.employees = data.map(emp => ({
       ...emp,
@@ -290,17 +281,17 @@ async function fetchEmployees() {
     state.totalMonthlyPayroll = state.employees.reduce((sum, e) => sum + (e.salary || 0), 0);
     renderPayroll();
   } catch (err) {
-    console.error('❌ Error fetching employees:', err);
+    console.error('Error fetching employees:', err);
     toast('Error loading employees');
   }
 }
 
 // Fetch payslip for a specific employee and period
 async function fetchPayslip(employeeId, periodId) {
-  console.log('🔍 Fetching payslip for employee:', employeeId);
+  console.log('Fetching payslip for employee:', employeeId);
   const token = getToken();
   if (!token) {
-    console.error('❌ No token found');
+    console.error('No token found');
     return null;
   }
 
@@ -315,10 +306,10 @@ async function fetchPayslip(employeeId, periodId) {
       throw new Error(`Failed to fetch payslip: ${res.status}`);
     }
     const data = await res.json();
-    console.log('✅ Payslip loaded:', data);
+    console.log('Payslip loaded:', data);
     return data;
   } catch (err) {
-    console.error('❌ Error fetching payslip:', err);
+    console.error('Error fetching payslip:', err);
     toast('Error loading payslip');
     return null;
   }
@@ -326,7 +317,7 @@ async function fetchPayslip(employeeId, periodId) {
 
 // Run payroll for a period
 async function runPayroll(periodId) {
-  console.log('🔍 Running payroll...');
+  console.log('Running payroll...');
   const token = getToken();
   if (!token) {
     toast('Please login again');
@@ -350,14 +341,12 @@ async function runPayroll(periodId) {
     toast(`Payroll run completed: ${result.count || 0} employees processed`);
     await fetchEmployees();
   } catch (err) {
-    console.error('❌ Error running payroll:', err);
+    console.error('Error running payroll:', err);
     toast('Error running payroll: ' + err.message);
   }
 }
 
-/* ============================================================
-   ----------  RENDER FUNCTIONS (mostly unchanged)  ----------
-   ============================================================ */
+/* RENDER FUNCTIONS */
 
 let currentTab = "payroll";
 
@@ -507,9 +496,7 @@ function drawPayrollTable() {
   });
 }
 
-/* ============================================================
-   PAYSLIP MODAL - now fetches real payslip from API
-   ============================================================ */
+/* PAYSLIP MODAL - now fetches real payslip from API */
 
 async function viewPayslip(id) {
   const e = state.employees.find(x => x.id === id);
@@ -525,9 +512,9 @@ async function viewPayslip(id) {
     return;
   }
 
-  console.log('📄 Full payslip data:', payslipData);
+  console.log('Full payslip data:', payslipData);
 
-  // ✅ Extract from the actual API response structure
+  // Extract from the actual API response structure
   const employee = payslipData.employee || {};
   const payroll = payslipData.payroll || {};
   const breakdown = payslipData.breakdown || {};
@@ -579,9 +566,7 @@ async function viewPayslip(id) {
   };
 }
 
-/* ============================================================
-   PAYSLIPS - now uses API for payslip document
-   ============================================================ */
+/* PAYSLIPS - now uses API for payslip document */
 
 const PS_PERIODS = [
   { m: 0, name: "January", year: 2025, range: "01 – 31 Jan 2025" },
@@ -680,7 +665,7 @@ async function drawPayslipDoc() {
     return;
   }
 
-  // ✅ Extract from the actual API response structure
+  // Extract from the actual API response structure
   const employee = payslipData.employee || {};
   const payroll = payslipData.payroll || {};
   const breakdown = payslipData.breakdown || {};
@@ -791,17 +776,15 @@ async function drawPayslipDoc() {
   });
 }
 
-/* ============================================================
-   BOOT – Load employees from API on page load
-   ============================================================ */
+/* BOOT – Load employees from API on page load */
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔍 Payroll initializing...');
+  console.log(' Payroll initializing...');
   
   // Check authentication
   const token = getToken();
   if (!token) {
-    console.warn('⛔ No token found, redirecting to login');
+    console.warn('No token found, redirecting to login');
     setTimeout(() => { window.location.href = '../index.html'; }, 1000);
     return;
   }

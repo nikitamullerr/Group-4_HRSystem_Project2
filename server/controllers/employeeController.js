@@ -42,7 +42,7 @@ export const createEmployee = async (req, res, next) => {
             email,
             department_id,
             position,
-            password,        // ✅ Now accepting 'password' from the request
+            password,        // Now accepting 'password' from the request
             role
         } = req.body;
 
@@ -76,7 +76,7 @@ export const createEmployee = async (req, res, next) => {
             email,
             department_id,
             position,
-            password_hash,      // ✅ Pass the hashed password
+            password_hash,      // Pass the hashed password
             role: role || 'employee'
         });
 
