@@ -159,7 +159,7 @@ document.addEventListener("click", function() {
    BACKEND API INTEGRATION
    ============================================ */
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://moderntech-hr-backend.onrender.com';
 
 var ATTENDANCE_LEAVE = [];
 var PAYROLL = {};

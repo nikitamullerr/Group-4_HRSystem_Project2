@@ -176,7 +176,7 @@ let reviews = [];
 let currentReviewId = null;
 let currentStatusFilter = "All";
 
-const API_URL = "http://localhost:5000/api/performance-reviews";
+const API_BASE_URL = "http://localhost:5000/api/performance-reviews";
 
 /* ==================================================
    FETCH EMPLOYEES FOR DEPARTMENT NAMES

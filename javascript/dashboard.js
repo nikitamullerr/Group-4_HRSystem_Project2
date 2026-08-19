@@ -154,7 +154,7 @@ document.addEventListener("click", () => { document.getElementById("profileMenu"
    API INTEGRATION - MATCHING YOUR BACKEND ROUTES
    ================================================================= */
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://moderntech-hr-backend.onrender.com';
 
 function getAuthToken() {
     return localStorage.getItem('token');

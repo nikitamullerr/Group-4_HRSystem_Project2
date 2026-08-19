@@ -240,7 +240,7 @@ function getToken() {
    All data now comes from the backend via fetch.
    ============================================================ */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://moderntech-hr-backend.onrender.com';
 
 // Fetch employees and update state
 async function fetchEmployees() {

@@ -335,7 +335,7 @@ let currentEmployeeId = null;
    Uses the running Node.js/Express backend.
 ================================================== */
 
-const API_URL = "http://localhost:5000/api/employees";
+const API_URL = "https://moderntech-hr-backend.onrender.com";
 
 /* ==================================================
    GET AUTH TOKEN
