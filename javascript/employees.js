@@ -321,21 +321,21 @@ function applyTheme(theme) {
 }
 
 /* ==================================================
+   API CONFIGURATION
+   Uses the running Node.js/Express backend.
+================================================== */
+
+const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
+const API_URL = `${API_BASE_URL}/api/employees`;
+
+/* ==================================================
    API EMPLOYEE DATA
    Employees are now loaded from the Node.js backend
    instead of using hard-coded frontend data.
 ================================================== */
 
 let employees = [];
-
 let currentEmployeeId = null;
-
-/* ==================================================
-   API CONFIGURATION
-   Uses the running Node.js/Express backend.
-================================================== */
-
-const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
 
 /* ==================================================
    GET AUTH TOKEN
@@ -645,14 +645,8 @@ function updateStatistics() {
     totalDepartments.textContent =
         departments.length;
 
-     /* ==================================================
-   SALARY NOTE
-   Salary is not currently returned by the employee
-   backend, so the dashboard salary KPI is disabled
-   until salary is added to the database/API.
-================================================== */
-
-averageSalary.textContent = "N/A";
+    // Salary is not currently returned by the employee backend
+    averageSalary.textContent = "N/A";
 
 }
 
@@ -700,6 +694,7 @@ function populateDepartments() {
     });
 
 }
+
 /* ==================================================
    EMPLOYEE TABLE RENDERING
 ================================================== */
@@ -856,7 +851,7 @@ async function editEmployee(id) {
         const token = getAuthToken();
 
         const response = await fetch(
-            `${API_BASE_URL}/${id}`,
+            `${API_URL}/${id}`,
             {
                 method: "GET",
 
@@ -1009,7 +1004,7 @@ async function saveEmployeeChanges() {
 
         const employeeResponse =
             await fetch(
-                `${API_BASE_URL}/${currentEmployeeId}`,
+                `${API_URL}/${currentEmployeeId}`,
                 {
                     headers: {
                         "Authorization":
@@ -1053,7 +1048,7 @@ async function saveEmployeeChanges() {
 
         const response =
             await fetch(
-                `${API_BASE_URL}/${currentEmployeeId}`,
+                `${API_URL}/${currentEmployeeId}`,
                 {
                     method: "PUT",
 

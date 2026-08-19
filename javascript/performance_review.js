@@ -168,6 +168,13 @@ function applyTheme(theme) {
 }
 
 /* ==================================================
+   API CONFIGURATION - PRODUCTION URL
+   ================================================== */
+
+const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
+const API_URL = `${API_BASE_URL}/api/performance-reviews`;
+
+/* ==================================================
    PERFORMANCE REVIEW DATA
    Reviews are now loaded from the backend database.
 ================================================== */
@@ -175,8 +182,6 @@ function applyTheme(theme) {
 let reviews = [];
 let currentReviewId = null;
 let currentStatusFilter = "All";
-
-const API_BASE_URL = "http://localhost:5000/api/performance-reviews";
 
 /* ==================================================
    FETCH EMPLOYEES FOR DEPARTMENT NAMES
@@ -187,7 +192,7 @@ async function fetchEmployees() {
     if (!token) return {};
 
     try {
-        const response = await fetch("http://localhost:5000/api/employees", {
+        const response = await fetch(`${API_BASE_URL}/api/employees`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -212,7 +217,7 @@ async function fetchEmployees() {
 ================================================== */
 
 async function loadReviews() {
-    const token = localStorage.getItem("token"); // ✅ FIXED: Using correct token key
+    const token = localStorage.getItem("token");
 
     if (!token) {
         console.error("No authentication token found. Please login first.");
@@ -686,5 +691,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     initialiseThemeButton();
     initialiseProfileMenu();
     applyTheme(currentTheme());
-    console.log("Performance Reviews page initialised successfully.");
+    console.log("✅ Performance Reviews page initialised successfully.");
 });

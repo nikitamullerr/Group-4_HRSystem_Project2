@@ -254,7 +254,7 @@ async function fetchEmployees() {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/employees`, {
+    const res = await fetch(`${API_BASE_URL}/api/employees`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -305,7 +305,7 @@ async function fetchPayslip(employeeId, periodId) {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/payroll/payslip/${employeeId}?period=${periodId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/payroll/payslip/${employeeId}?period=${periodId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -334,7 +334,7 @@ async function runPayroll(periodId) {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/payroll/run`, {
+    const res = await fetch(`${API_BASE_URL}/api/payroll/run`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -583,16 +583,23 @@ async function viewPayslip(id) {
    PAYSLIPS - now uses API for payslip document
    ============================================================ */
 
-const PS_PERIODS = ["January", "February", "March", "April", "May", "June"]
-  .map((name, m) => ({
-    m,
-    name,
-    year: 2026,
-    range: `01 – ${new Date(2026, m + 1, 0).getDate()} ${name.slice(0, 3)} 2026`
-  }));
+const PS_PERIODS = [
+  { m: 0, name: "January", year: 2025, range: "01 – 31 Jan 2025" },
+  { m: 1, name: "February", year: 2025, range: "01 – 28 Feb 2025" },
+  { m: 2, name: "March", year: 2025, range: "01 – 31 Mar 2025" },
+  { m: 3, name: "April", year: 2025, range: "01 – 30 Apr 2025" },
+  { m: 4, name: "May", year: 2025, range: "01 – 31 May 2025" },
+  { m: 5, name: "June", year: 2025, range: "01 – 30 Jun 2025" },
+  { m: 6, name: "July", year: 2025, range: "01 – 31 Jul 2025" },
+  { m: 7, name: "August", year: 2025, range: "01 – 31 Aug 2025" },
+  { m: 8, name: "September", year: 2025, range: "01 – 30 Sep 2025" },
+  { m: 9, name: "October", year: 2025, range: "01 – 31 Oct 2025" },
+  { m: 10, name: "November", year: 2025, range: "01 – 30 Nov 2025" },
+  { m: 11, name: "December", year: 2025, range: "01 – 31 Dec 2025" }
+];
 
 let psEmpId = 1;
-let psPeriod = 5;
+let psPeriod = 6; // July 2025
 let psQuery = "";
 
 function renderPayslipsTab() {
@@ -673,15 +680,21 @@ async function drawPayslipDoc() {
     return;
   }
 
-  const figures = payslipData.figures || {};
-  const basic = figures.basic || 0;
-  const overtime = figures.overtime || 0;
-  const gross = figures.gross || 0;
-  const tax = figures.tax || 0;
-  const pension = figures.pension || 0;
-  const other = figures.other || 0;
-  const totalDeductions = figures.totalDeductions || 0;
-  const net = figures.net || 0;
+  // ✅ Extract from the actual API response structure
+  const employee = payslipData.employee || {};
+  const payroll = payslipData.payroll || {};
+  const breakdown = payslipData.breakdown || {};
+  
+  const basic = breakdown.basicSalary || 0;
+  const allowances = breakdown.allowances || 0;
+  const bonuses = breakdown.bonuses || 0;
+  const deductions = breakdown.deductions || 0;
+  const totalPay = breakdown.total || 0;
+  const netPay = Number(payroll.netPay) || 0;
+  
+  const month = payroll.month ? new Date(payroll.month).toLocaleString('default', { month: 'long', year: 'numeric' }) : p.name + ' ' + p.year;
+  const status = payroll.status || 'N/A';
+  const generatedAt = payslipData.generatedAt ? new Date(payslipData.generatedAt).toLocaleString() : 'N/A';
 
   const periodOpts = PS_PERIODS.map(pr => `
     <option value="${pr.m}" ${pr.m === psPeriod ? 'selected' : ''}>${pr.name} ${pr.year}</option>
@@ -701,7 +714,7 @@ async function drawPayslipDoc() {
         </div>
         <div class="slip-title">
           <div class="eyebrow">Payslip</div>
-          <b>${p.name} ${p.year}</b>
+          <b>${month}</b>
           <span>${p.range}</span>
         </div>
       </div>
@@ -709,8 +722,8 @@ async function drawPayslipDoc() {
       <div class="slip-emp">
         ${avatar(e)}
         <div class="slip-emp-main">
-          <b>${e.name}</b>
-          <span>${e.role} · ${e.dept}</span>
+          <b>${employee.name || e.name}</b>
+          <span>${employee.position || e.role} · ${employee.department || e.dept}</span>
         </div>
         <div class="slip-emp-meta">
           <div>
@@ -737,21 +750,21 @@ async function drawPayslipDoc() {
         <div class="slip-block">
           <div class="slip-h">Earnings</div>
           <div class="slip-row"><span>Basic salary</span><b>${money(basic)}</b></div>
-          <div class="slip-row"><span>Overtime</span><b>${money(overtime)}</b></div>
-          <div class="slip-row total"><span>Gross pay</span><b>${money(gross)}</b></div>
+          <div class="slip-row"><span>Allowances</span><b>${money(allowances)}</b></div>
+          <div class="slip-row"><span>Bonuses</span><b>${money(bonuses)}</b></div>
+          <div class="slip-row total"><span>Gross pay</span><b>${money(totalPay)}</b></div>
         </div>
         <div class="slip-block">
           <div class="slip-h">Deductions</div>
-          <div class="slip-row"><span>PAYE tax</span><b>-${money(tax)}</b></div>
-          <div class="slip-row"><span>Pension</span><b>-${money(pension)}</b></div>
-          <div class="slip-row"><span>Other</span><b>-${money(other)}</b></div>
-          <div class="slip-row total"><span>Total deductions</span><b>-${money(totalDeductions)}</b></div>
+          <div class="slip-row"><span>PAYE tax</span><b>-${money(Math.round(deductions * 0.73))}</b></div>
+          <div class="slip-row"><span>Pension</span><b>-${money(Math.round(deductions * 0.27))}</b></div>
+          <div class="slip-row total"><span>Total deductions</span><b>-${money(deductions)}</b></div>
         </div>
       </div>
       
       <div class="slip-net">
-        <span>Net pay · ${p.name} ${p.year}</span>
-        <b>${money(net)}</b>
+        <span>Net pay · ${month}</span>
+        <b>${money(netPay)}</b>
       </div>
       
       <div class="slip-actions">
@@ -769,7 +782,8 @@ async function drawPayslipDoc() {
     };
   }
   document.getElementById('slipPrint')?.addEventListener('click', () => {
-    toast(`Preparing ${e.name}'s payslip — ${p.name} ${p.year}`);
+    window.print();
+    toast(`Preparing ${employee.name || e.name}'s payslip — ${month}`);
   });
   document.getElementById('slipPayroll')?.addEventListener('click', () => {
     currentTab = 'payroll';

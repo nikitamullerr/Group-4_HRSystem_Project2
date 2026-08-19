@@ -18,6 +18,11 @@ function pageUrl(id) {
   return id + ".html";
 }
 
+/* ==================================================
+   API CONFIGURATION - PRODUCTION URL
+   ================================================== */
+const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
+
 /* Top bar HTML generation */
 function topbarHTML(active) {
   const logo = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V9l6-4 6 4v12M10 21v-5h4v5"/></svg>';
@@ -256,9 +261,8 @@ function buildState() {
 }
 
 // FALLBACK FUNCTION - Used when /api/employees is not available
-
 function getFallbackEmployeeData(attendanceData) {
-  console.log('Using fallback employee data (hardcoded departments)');
+  console.log('📋 Using fallback employee data (hardcoded departments)');
   
   const departmentMap = {
     1: 'Development',
@@ -287,7 +291,6 @@ function getFallbackEmployeeData(attendanceData) {
 }
 
 // LOAD DATA FROM BACKEND API
-
 async function loadData() {
   try {
     const token = localStorage.getItem('token');
@@ -297,7 +300,7 @@ async function loadData() {
     }
 
     // 1. Fetch attendance data (YOUR API)
-    const attRes = await fetch('http://localhost:5000/api/attendance', {
+    const attRes = await fetch(`${API_BASE_URL}/api/attendance`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -309,20 +312,20 @@ async function loadData() {
     }
 
     const attendanceData = await attRes.json();
-    console.log('Attendance data loaded:', attendanceData.length, 'records');
+    console.log('📋 Attendance data loaded:', attendanceData.length, 'records');
 
-    // 2. Try to fetch employee data (Xabiso's API) with fallback
+    // 2. Try to fetch employee data with fallback
     let EMP_META = {};
 
     try {
-      console.log('Attempting to fetch employees from /api/employees...');
-      const empRes = await fetch('http://localhost:5000/api/employees', {
+      console.log('🔄 Attempting to fetch employees from /api/employees...');
+      const empRes = await fetch(`${API_BASE_URL}/api/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (empRes.ok) {
         const employeesData = await empRes.json();
-        console.log('Employee data loaded from API:', employeesData.length, 'records');
+        console.log('✅ Employee data loaded from API:', employeesData.length, 'records');
         
         employeesData.forEach(emp => {
           EMP_META[emp.id] = {
@@ -331,23 +334,23 @@ async function loadData() {
           };
         });
       } else {
-        console.warn(' /api/employees returned', empRes.status, '- using fallback data');
+        console.warn('⚠️ /api/employees returned', empRes.status, '- using fallback data');
         EMP_META = getFallbackEmployeeData(attendanceData);
       }
     } catch (empError) {
-      console.warn('Failed to fetch /api/employees, using fallback:', empError.message);
+      console.warn('⚠️ Failed to fetch /api/employees, using fallback:', empError.message);
       EMP_META = getFallbackEmployeeData(attendanceData);
     }
 
-    // 3. Fetch pending leave requests (YOUR API)
-    const leaveRes = await fetch('http://localhost:5000/api/timeoff/pending', {
+    // 3. Fetch pending leave requests
+    const leaveRes = await fetch(`${API_BASE_URL}/api/timeoff/pending`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
     let leaveData = [];
     if (leaveRes.ok) {
       leaveData = await leaveRes.json();
-      console.log('Pending leave data loaded:', leaveData.length, 'requests');
+      console.log('📋 Pending leave data loaded:', leaveData.length, 'requests');
     }
 
     // 4. Transform attendance data
@@ -386,9 +389,9 @@ async function loadData() {
 
     // 6. Store in global variables
     ATTENDANCE_LEAVE = Object.values(employeeMap);
-    console.log('Total employees processed:', ATTENDANCE_LEAVE.length);
+    console.log('📊 Total employees processed:', ATTENDANCE_LEAVE.length);
 
-    // 7. Build EMP_META (ensure it has all employees)
+    // 7. Build EMP_META
     EMP_META = {};
     ATTENDANCE_LEAVE.forEach(emp => {
       EMP_META[emp.employeeId] = {
@@ -411,7 +414,7 @@ async function loadData() {
     return true;
 
   } catch (err) {
-    console.error('Error loading data:', err);
+    console.error('❌ Error loading data:', err);
     const main = document.getElementById("main");
     if (main) {
       main.innerHTML =
