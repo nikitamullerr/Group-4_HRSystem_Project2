@@ -335,7 +335,7 @@ let currentEmployeeId = null;
    Uses the running Node.js/Express backend.
 ================================================== */
 
-const API_URL = "https://moderntech-hr-backend.onrender.com";
+const API_BASE_URL = "https://moderntech-hr-backend.onrender.com";
 
 /* ==================================================
    GET AUTH TOKEN
@@ -856,7 +856,7 @@ async function editEmployee(id) {
         const token = getAuthToken();
 
         const response = await fetch(
-            `${API_URL}/${id}`,
+            `${API_BASE_URL}/${id}`,
             {
                 method: "GET",
 
@@ -1009,7 +1009,7 @@ async function saveEmployeeChanges() {
 
         const employeeResponse =
             await fetch(
-                `${API_URL}/${currentEmployeeId}`,
+                `${API_BASE_URL}/${currentEmployeeId}`,
                 {
                     headers: {
                         "Authorization":
@@ -1053,7 +1053,7 @@ async function saveEmployeeChanges() {
 
         const response =
             await fetch(
-                `${API_URL}/${currentEmployeeId}`,
+                `${API_BASE_URL}/${currentEmployeeId}`,
                 {
                     method: "PUT",
 
