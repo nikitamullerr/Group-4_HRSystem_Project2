@@ -1292,10 +1292,24 @@ textarea.field {
 }
 
 .who-cell .nm {
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    font-weight: 600;
+    white-space: normal;  
+    word-break: break-word;
+    overflow: visible;
+    text-overflow: unset;
+}
+
+@media (max-width: 680px) {
+    .trow.emp-grid .employee-section .emp-info .name {
+        white-space: normal !important;
+        word-break: break-word;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }
+}
+
+.emp-grid {
+    grid-template-columns: 3fr 1.5fr 1fr 1.1fr auto !important;
 }
 
 .who-cell .rl {
@@ -3125,3 +3139,4 @@ body.compact .thead {
     grid-template-columns: 1fr;
   }
 }
+
