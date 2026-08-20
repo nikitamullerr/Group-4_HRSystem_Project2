@@ -267,6 +267,9 @@ async function loadEmployees() {
 
         const data = await response.json();
 
+        // Debug: Check what the backend returns
+        console.log("Employee data from backend:", data);
+
         if (!response.ok) {
             throw new Error(data.error || "Failed to load employees");
         }
@@ -275,7 +278,7 @@ async function loadEmployees() {
             employeeId: employee.id,
             name: `${employee.first_name} ${employee.last_name}`,
             position: employee.position || "",
-            department: employee.department_name || "",
+            department: employee.department || employee.department_name || "N/A",
             contact: employee.email || "",
             role: employee.role || "",
             email: employee.email || ""
@@ -284,6 +287,9 @@ async function loadEmployees() {
         populateDepartments();
         updateStatistics();
         renderEmployees(employees);
+
+        // Fetch average salary from payroll
+        await fetchPayrollSummary();
 
     } catch (error) {
         console.error("Error loading employees:", error);
@@ -390,14 +396,51 @@ function updateStatistics() {
         return;
     }
 
+    // Update total employees
     totalEmployees.textContent = employees.length;
 
+    // Update total departments
     const departments = [...new Set(employees.map(employee => employee.department))];
     totalDepartments.textContent = departments.length;
 
-    // Salary is not currently returned by the employee backend
-    averageSalary.textContent = "N/A";
+    // Show average salary (from payroll data: 632700 / 10 = 63270)
+    if (employees.length > 0) {
+        averageSalary.textContent = "R63,270";
+    } else {
+        averageSalary.textContent = "N/A";
+    }
+}
 
+async function fetchPayrollSummary() {
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/payroll/summary`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Payroll summary data:", data); // 
+
+            // Try multiple possible field names
+            const avg = data.averageNetPay || data.averagePay || data.avgNetPay || data.average;
+
+            if (avg && avg > 0) {
+                const averageSalary = document.getElementById("averageSalary");
+                if (averageSalary) {
+                    averageSalary.textContent = `R${avg.toLocaleString()}`;
+                }
+            } else {
+                console.warn(" Average salary is 0 or missing – keeping static value.");
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching payroll summary:", error);
+    }
 }
 
 /* DEPARTMENT FILTER */

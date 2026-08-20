@@ -1,7 +1,7 @@
 /* MODERNTECH HR — main stylesheet
    Contains the full design system for all pages */
 
-/* ROOT VARIABLES & THEMING */ 
+/* ROOT VARIABLES & THEMING */
 
 :root {
   /* Brand colors */
@@ -1250,7 +1250,13 @@ textarea.field {
 }
 
 .emp-grid {
-  grid-template-columns: 2.4fr 1.5fr 1fr 1.1fr auto;
+  grid-template-columns:
+    minmax(0, 3.2fr) minmax(0, 1.4fr) minmax(0, 1fr)
+    minmax(0, 1.1fr) 230px;
+}
+
+.emp-grid > * {
+  min-width: 0;
 }
 
 .thead {
@@ -1287,15 +1293,35 @@ textarea.field {
   place-items: center;
   font-weight: 800;
   color: #fff;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
   font-size: 14px;
   flex-shrink: 0;
 }
 
 .who-cell .nm {
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+@media (max-width: 680px) {
+  .trow.emp-grid .employee-section .emp-info .name {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow: visible !important;
+    text-overflow: unset !important;
+  }
+}
+
+.who-cell .nm {
+  font-weight: 600;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 .who-cell .rl {
@@ -1357,6 +1383,15 @@ textarea.field {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  white-space: nowrap;
+}
+
+body[data-page="employees"] .trow.emp-grid > div:nth-child(4) {
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-overflow: ellipsis;
 }
 
 /* Buttons */
@@ -1408,16 +1443,6 @@ textarea.field {
 .btn.line:hover {
   background: var(--hover);
   filter: none;
-}
-
-/* Responsive table */
-@media (max-width: 760px) {
-  .emp-grid {
-    grid-template-columns: 2fr 1fr auto;
-  }
-  .emp-grid .col-hide {
-    display: none;
-  }
 }
 
 /* 
@@ -2629,6 +2654,81 @@ body.compact .thead {
   }
 }
 
+/* Employee rows use a different markup from review cards. */
+@media (max-width: 680px) {
+  body[data-page="employees"] .trow.emp-grid {
+    display: block;
+    padding: 0;
+  }
+
+  body[data-page="employees"] .trow.emp-grid .who-cell {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--blue-50);
+    border-bottom: 1px solid var(--line);
+  }
+
+  body[data-page="employees"] .trow.emp-grid .who-cell .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(2),
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(3),
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(4) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(2)::before,
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(3)::before,
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(4)::before {
+    min-width: 80px;
+    color: var(--muted);
+    content: "";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(2)::before {
+    content: "Department";
+  }
+
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(3)::before {
+    content: "Position";
+  }
+
+  body[data-page="employees"] .trow.emp-grid > div:nth-child(4)::before {
+    content: "Contact";
+  }
+
+  body[data-page="employees"] .trow.emp-grid .row-actions {
+    display: flex;
+    justify-content: stretch;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--panel-2);
+  }
+
+  body[data-page="employees"] .trow.emp-grid .row-actions .btn {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
 /* ==================================================
    PERFORMANCE REVIEWS - COMPLETE STYLING
 ================================================== */
@@ -2844,140 +2944,140 @@ body.compact .thead {
 /* MODAL STYLES */
 
 .modal-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    backdrop-filter: blur(4px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
 }
 
 .modal-bg.show {
-    display: flex;
+  display: flex;
 }
 
 .modal {
-    background: var(--bg);
-    border-radius: 12px;
-    max-width: 520px;
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: modalIn 0.3s ease;
+  background: var(--bg);
+  border-radius: 12px;
+  max-width: 520px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalIn 0.3s ease;
 }
 
 @keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .mhead {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
 }
 
 .mhead h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .mhead button {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--muted);
-    padding: 0 8px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0 8px;
 }
 
 .mhead button:hover {
-    color: var(--text);
+  color: var(--text);
 }
 
 .mbody {
-    padding: 20px;
+  padding: 20px;
 }
 
 .mfoot {
-    padding: 16px 20px;
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 /* FORM STYLES */
 
 .form-group {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
-    display: block;
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 4px;
-    color: var(--text);
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--text);
 }
 
 .form-group .field,
 .form-group .select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    font-size: 14px;
-    background: var(--bg);
-    color: var(--text);
-    transition: border-color 0.2s;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.2s;
 }
 
 .form-group .field:focus,
 .form-group .select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* TOAST NOTIFICATIONS */
 
 .toast {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #1e293b;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 500;
-    z-index: 99999;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    max-width: 400px;
-    pointer-events: none;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #1e293b;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  z-index: 99999;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  pointer-events: none;
 }
 
 .toast.show {
-    opacity: 1;
-    transform: translateY(0);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Even smaller screens */
@@ -3034,7 +3134,9 @@ body.compact .thead {
 /* Tablet size adjustments */
 @media (min-width: 681px) and (max-width: 900px) {
   .emp-grid {
-    grid-template-columns: 1.8fr 1.2fr 0.8fr 1fr auto;
+    grid-template-columns:
+      minmax(0, 1.8fr) minmax(0, 1.2fr) minmax(0, 0.8fr)
+      minmax(0, 1fr) 210px;
     gap: 8px;
     padding: 12px 14px;
     font-size: 13px;

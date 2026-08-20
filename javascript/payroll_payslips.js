@@ -286,6 +286,29 @@ async function fetchEmployees() {
   }
 }
 
+async function fetchPayrollSummary() {
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/payroll/summary`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const averageSalary = document.getElementById("averageSalary");
+            if (averageSalary) {
+                averageSalary.textContent = `R${data.averageNetPay.toLocaleString()}`;
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching payroll summary:", error);
+    }
+}
+
 // Fetch payslip for a specific employee and period
 async function fetchPayslip(employeeId, periodId) {
   console.log('Fetching payslip for employee:', employeeId);
