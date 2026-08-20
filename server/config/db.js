@@ -5,19 +5,19 @@ dotenv.config();
 
 // Log all environment variables (except password)
 console.log('DATABASE CONFIGURATION:');
-console.log('  Host:', process.env.DB_HOST || '❌ MISSING');
-console.log('  Port:', process.env.DB_PORT || '❌ MISSING');
-console.log('  User:', process.env.DB_USER || '❌ MISSING');
-console.log('  Database:', process.env.DB_NAME || '❌ MISSING');
-console.log('  Password exists:', process.env.DB_PASSWORD ? '✅ Yes' : '❌ NO');
+console.log('  Host:', process.env.DB_HOST || 'MISSING');
+console.log('  Port:', process.env.DB_PORT || 'MISSING');
+console.log('  User:', process.env.DB_USER || 'MISSING');
+console.log('  Database:', process.env.DB_NAME || 'MISSING');
+console.log('  Password exists:', process.env.DB_PASSWORD ? 'Yes' : 'NO');
 
 // Validate required variables
 if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-    console.error('❌ CRITICAL: Missing database environment variables!');
-    console.error('   DB_HOST:', process.env.DB_HOST ? '✅' : '❌');
-    console.error('   DB_USER:', process.env.DB_USER ? '✅' : '❌');
-    console.error('   DB_PASSWORD:', process.env.DB_PASSWORD ? '✅' : '❌');
-    console.error('   DB_NAME:', process.env.DB_NAME ? '✅' : '❌');
+    console.error('CRITICAL: Missing database environment variables!');
+    console.error('   DB_HOST:', process.env.DB_HOST ? 'Yes' : 'No');
+    console.error('   DB_USER:', process.env.DB_USER ? 'Yes' : 'No');
+    console.error('   DB_PASSWORD:', process.env.DB_PASSWORD ? 'Yes' : 'No');
+    console.error('   DB_NAME:', process.env.DB_NAME ? 'Yes' : 'No');
 }
 
 const pool = mysql.createPool({
@@ -48,7 +48,6 @@ const pool = mysql.createPool({
         } else if (err.code === 'ECONNREFUSED') {
             console.error('The host or port is incorrect. Check DB_HOST and DB_PORT.');
         }
-        // Don't exit – let the server start but log the error
     }
 })();
 
