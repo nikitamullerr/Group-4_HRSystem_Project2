@@ -1,25 +1,35 @@
 # HR System — Group 4
 
-A full-stack HR management app for tracking employees, attendance, payroll, time off, and performance reviews. Static HTML/CSS/JS front-end (Module 1) backed by a Node.js + Express + MySQL API (Module 2), built for the ModernTech Solutions case study.
+A full-stack HR management app for tracking employees, attendance, payroll, time off, and performance reviews. Built for the ModernTech Solutions case study.
 
-## Group Members
+---
 
-- Nikita Muller — Auth, Attendance, Time Off
-- Xabiso Phendu — Employees, Performance Reviews
-- Rasool Fredericks — Payroll
-- Rushin Presence — Dashboard
+## 👥 Group Members
 
-## Tech Stack
+| Name | Modules |
+| :--- | :--- |
+| Nikita Muller | Auth, Attendance, Time Off |
+| Xabiso Phendu | Employees, Performance Reviews |
+| Rasool Fredericks | Payroll |
+| Rushin Presence | Dashboard |
 
-Node.js, Express (ES Modules), MySQL (`mysql2`), JWT auth, `bcrypt` password hashing.
+---
 
-## Links
+## 🛠️ Tech Stack
 
-- **ERD:** ![alt text](<Backend_ModernTech Solutions.drawio.png>)
-- **GitHub Repo:** https://github.com/nikitamullerr/Group-4_HRSystem_Project2.git
-- **Live front-end:** 
-- **Docs:** https://docs.google.com/document/d/1VuhvWDlhzR18jsjG5No5b2fd3wmIOFVNX-AYX-hzXrI
+Node.js, Express (ES Modules), MySQL (`mysql2`), JWT auth, `bcrypt`
 
+---
+
+## 🔗 Links
+
+- **ERD:** ![ERD](Backend-ModernTech%20HR-ERD.png)
+- **GitHub:** [Group-4_HRSystem_Project2](https://github.com/nikitamullerr/Group-4_HRSystem_Project2.git)
+- **Live:** [moderntech-hr-frontend.onrender.com](https://moderntech-hr-frontend.onrender.com)
+- **Docs:** [Google Docs](https://docs.google.com/document/d/1wiat-3Vutg5_HJgBbIjsWfUwSew7h4BmxC3-6Zd-1lw/edit?usp=sharing)
+- **Docs:** [Google Docs](https://docs.google.com/document/d/1QtPscGWXRALAwVyTvwORRLI8jyo24lOe7K12bFvxHcI/edit?usp=sharing)
+
+---
 ## Project Structure
 
 ```
@@ -42,33 +52,32 @@ HR_System-Group-4/
 ## Database
 
 Six MySQL tables: `departments`, `employees` (hub table, holds login credentials), `attendance`, `leave_requests`, `payroll`, `performance_reviews` — all foreign-keyed to `employees`. Full schema in `server/database/schema.sql`.
+## API Endpoints
 
-## API
+All routes (except login) require `Authorization: Bearer <token>`.
 
-All routes except login require `Authorization: Bearer <token>`.
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/api/auth/login` | Login |
+| GET/POST/PUT/DELETE | `/api/employees` | Employee CRUD |
+| GET/POST | `/api/attendance` | Attendance |
+| GET/PUT/POST | `/api/timeoff` | Leave requests |
+| GET/POST | `/api/payroll` | Payroll |
+| GET/POST | `/api/performance-reviews` | Performance reviews |
+| GET | `/api/dashboard/summary` | Dashboard KPIs |
 
-- `POST /api/auth/login`
-- `GET/POST/PUT/DELETE /api/employees`
-- `GET/POST /api/attendance`
-- `GET/POST /api/leave-requests`, `PUT /api/leave-requests/:id/status`
-- `GET /api/payroll`, `POST /api/payroll/run`
-- `GET/POST /api/performance-reviews`
-- `GET /api/dashboard/summary`
+---
 
-## Getting Started
+## Quick Start
 
 ```bash
-git clone https://github.com/nikitamullerr/HR_System-Group-4.git
-cd HR_System-Group-4/server
+git clone https://github.com/nikitamullerr/Group-4_HRSystem_Project2.git
+cd Group-4_HRSystem_Project2/server
 npm install
-cp .env.example .env   # fill in your MySQL credentials + a JWT secret
-mysql -u root -p -e "CREATE DATABASE moderntech_hr"
-mysql -u root -p moderntech_hr < database/schema.sql
+cp .env.example .env   # Add MySQL credentials + JWT secret
+mysql -u root -p < database/schema.sql
 npm run dev
-```
-
-Check `http://localhost:4000/api/health` returns `{"status":"ok"}`. Open `index.html` for the front-end.
-
+Open index.html in browser.
 ## Demo Credentials
 
 Login is by **email**. Password for every seeded account: `password123`.
