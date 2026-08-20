@@ -327,7 +327,7 @@ async function loadData() {
         
         employeesData.forEach(emp => {
           EMP_META[emp.id] = {
-            dept: emp.department_name || 'Development',
+            dept: emp.department || 'Development',
             role: emp.position || 'Team Member'
           };
         });

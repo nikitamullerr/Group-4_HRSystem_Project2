@@ -245,31 +245,35 @@ async function fetchEmployees() {
   }
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/employees`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+    // 1. Fetch employees
+    const empRes = await fetch(`${API_BASE_URL}/api/employees`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) {
-      if (res.status === 401) {
-        toast('Session expired. Please login again.');
-        setTimeout(() => { window.location.href = '../index.html'; }, 1500);
-        return;
-      }
-      throw new Error(`Failed to fetch employees: ${res.status}`);
-    }
-    const data = await res.json();
-    console.log('Employees loaded:', data.length);
+    if (!empRes.ok) throw new Error(`Failed to fetch employees: ${empRes.status}`);
+    const employeesData = await empRes.json();
+
+    // 2. Fetch payroll data to get real net pay
+    const payRes = await fetch(`${API_BASE_URL}/api/payroll/table`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     
-    state.employees = data.map(emp => ({
-      ...emp,
+    let payrollMap = {};
+    if (payRes.ok) {
+      const payrollData = await payRes.json();
+      payrollData.rows.forEach(row => {
+        payrollMap[row.id] = row.netPay || 0;
+      });
+    }
+
+    // 3. Map employees with real payroll data
+    state.employees = employeesData.map(emp => ({
       id: emp.id,
       name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || `Employee #${emp.id}`,
       role: emp.position || 'Team Member',
-      dept: emp.department_name || 'N/A',
-      deptColor: DEPT_COLOR[emp.department_name] || '#1d4ed8',
+      dept: emp.department || 'N/A',
+      deptColor: DEPT_COLOR[emp.department] || '#1d4ed8',
       avatar: AVATAR_COLORS[emp.id % AVATAR_COLORS.length],
-      salary: emp.salary || 50000,
+      salary: payrollMap[emp.id] || 0,
       status: 'Active',
       overtime: 0,
       deductions: 0,
@@ -277,7 +281,6 @@ async function fetchEmployees() {
       leaveDeductions: 0
     }));
     
-    // Compute total monthly payroll
     state.totalMonthlyPayroll = state.employees.reduce((sum, e) => sum + (e.salary || 0), 0);
     renderPayroll();
   } catch (err) {
