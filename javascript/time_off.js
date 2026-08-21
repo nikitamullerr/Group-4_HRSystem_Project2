@@ -635,7 +635,7 @@ function renderTimeoff() {
   var body = document.getElementById("toBody");
   if (state.timeoffTab === "pending") {
     body.innerHTML = renderPending();
-    wirePending();
+    // wirePending is called inside renderPending now
   } else {
     body.innerHTML = renderCalendar();
     wireCalendar();
@@ -647,8 +647,9 @@ function renderPending() {
     return '<div class="req-card"><div class="empty">No pending requests. You are all caught up!</div></div>';
   }
 
-  return '<div class="req-card">' + state.requests.map(function(r) {
-    return '<div class="req">' +
+  var html = '<div class="req-card">';
+  state.requests.forEach(function(r) {
+    html += '<div class="req">' +
       '<div class="who">' +
         '<b>' + r.name + '</b>' +
         '<span style="color:var(--muted)">· ' + r.type + ' · ' + reqDateLabel(r) + ' · ' + r.dept + '</span>' +
@@ -658,19 +659,38 @@ function renderPending() {
         '<button class="btn sm red" data-action="deny" data-id="' + r.id + '"> Deny</button>' +
       '</div>' +
     '</div>';
-  }).join("") + '</div>';
+  });
+  html += '</div>';
+  
+  // Wire buttons AFTER rendering
+  setTimeout(function() {
+    wirePending();
+  }, 100);
+  
+  return html;
 }
 
 function wirePending() {
-  document.querySelectorAll('[data-action="approve"], [data-action="deny"]').forEach(function(btn) {
+  console.log('wirePending called - wiring approve/deny buttons');
+  
+  var buttons = document.querySelectorAll('[data-action="approve"], [data-action="deny"]');
+  console.log('Found buttons:', buttons.length);
+  
+  buttons.forEach(function(btn) {
+    console.log('Wiring button:', btn.dataset.action, 'ID:', btn.dataset.id);
+    
     btn.onclick = async function() {
       var id = parseInt(btn.dataset.id);
       var approve = btn.dataset.action === "approve";
+      
+      console.log('Button clicked - ID:', id, 'Approve:', approve);
       
       btn.disabled = true;
       btn.textContent = '...';
       
       var r = await applyLeaveDecision(id, approve);
+      
+      console.log('applyLeaveDecision result:', r);
       
       btn.disabled = false;
       btn.textContent = approve ? 'Approve' : 'Deny';
@@ -678,6 +698,8 @@ function wirePending() {
       if (r) {
         toast((approve ? "Approved" : "Denied") + ": " + r.name + " — " + r.type);
         renderTimeoff();
+      } else {
+        console.log('No result from applyLeaveDecision');
       }
     };
   });
