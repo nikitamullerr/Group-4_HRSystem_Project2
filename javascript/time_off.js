@@ -360,45 +360,69 @@ async function loadData() {
 // APPROVE / DENY LEAVE REQUESTS (BACKEND)
 
 async function approveLeaveOnBackend(id) {
-  const token = getToken();
+  console.log('approveLeaveOnBackend called with ID:', id);
   
+  const token = getToken();
+  console.log('Token exists:', token ? 'Yes' : 'No');
+  
+  const url = `${API_BASE_URL}/api/timeoff/${id}/approve`;
+  console.log('Full URL:', url);
+
   try {
-    const response = await fetch(`${API_BASE_URL}/api/timeoff/${id}/approve`, {
+    const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
     
+    console.log('Response status:', response.status);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
       throw new Error('Failed to approve leave');
     }
     
-    return await response.json();
+    const data = await response.json();
+    console.log('Approve response:', data);
+    return data;
   } catch (err) {
-    console.error('Error approving leave:', err);
+    console.error('Error in approveLeaveOnBackend:', err);
     throw err;
   }
 }
 
 async function denyLeaveOnBackend(id) {
-  const token = getToken();
+  console.log('denyLeaveOnBackend called with ID:', id);
   
+  const token = getToken();
+  console.log('Token exists:', token ? 'Yes' : 'No');
+  
+  const url = `${API_BASE_URL}/api/timeoff/${id}/deny`;
+  console.log('Full URL:', url);
+
   try {
-    const response = await fetch(`${API_BASE_URL}/api/timeoff/${id}/deny`, {
+    const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
     
+    console.log('Response status:', response.status);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
       throw new Error('Failed to deny leave');
     }
     
-    return await response.json();
+    const data = await response.json();
+    console.log('Deny response:', data);
+    return data;
   } catch (err) {
-    console.error('Error denying leave:', err);
+    console.error('Error in denyLeaveOnBackend:', err);
     throw err;
   }
 }
@@ -571,19 +595,36 @@ function nextLeaveId() {
 }
 
 async function applyLeaveDecision(id, approve) {
+  console.log('applyLeaveDecision called - ID:', id, 'Approve:', approve);
+  
   var r = state.requests.find(function(x) { return x.id === id; });
-  if (!r) return null;
+  if (!r) {
+    console.log('Request not found in state.requests');
+    return null;
+  }
+
+  console.log('Request found:', r);
 
   try {
     if (approve) {
+      console.log('Calling approveLeaveOnBackend for ID:', id);
       await approveLeaveOnBackend(id);
       state.leave.push({ id: nextLeaveId(), name: r.name, type: r.type, year: r.year, month: r.month, day: r.day });
     } else {
+      console.log('Calling denyLeaveOnBackend for ID:', id);
       await denyLeaveOnBackend(id);
     }
+    
     state.requests = state.requests.filter(function(x) { return x.id !== id; });
+    
+    console.log('Request removed from pending list. Remaining:', state.requests.length);
+    console.log('Updated state.requests:', state.requests);
+    
+    renderTimeoff();
+    
     return r;
   } catch (err) {
+    console.error('Error in applyLeaveDecision:', err);
     toast('Error: ' + err.message);
     return null;
   }
@@ -688,19 +729,22 @@ function wirePending() {
       btn.disabled = true;
       btn.textContent = '...';
       
-      var r = await applyLeaveDecision(id, approve);
-      
-      console.log('applyLeaveDecision result:', r);
+      try {
+        var r = await applyLeaveDecision(id, approve);
+        console.log('applyLeaveDecision result:', r);
+        
+        if (r) {
+          toast((approve ? "Approved" : "Denied") + ": " + r.name + " — " + r.type);
+        } else {
+          toast('Failed to process request');
+        }
+      } catch (err) {
+        console.error('Error in button click:', err);
+        toast('Error: ' + err.message);
+      }
       
       btn.disabled = false;
       btn.textContent = approve ? 'Approve' : 'Deny';
-      
-      if (r) {
-        toast((approve ? "Approved" : "Denied") + ": " + r.name + " — " + r.type);
-        renderTimeoff();
-      } else {
-        console.log('No result from applyLeaveDecision');
-      }
     };
   });
 }
